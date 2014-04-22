@@ -37,7 +37,8 @@ var numFramesDrawn = 0;
 var curFPS = 0;
 var jumping = false;
 var score = 0;
-
+var livesCount = 3;
+var jumpCount = 0;
 
 function updateFPS() {
 	
@@ -95,8 +96,18 @@ function resourceLoaded() {
 
 function jump() {
     if (!jumping) {
-        jumping = true;
-        setTimeout(land, 800);
+        if (livesCount == 0) {
+            jumping = false;
+        }
+        else {
+            jumping = true;
+            jumpCount++;
+            if (jumpCount > 7)
+            {
+                livesCount--;
+            }
+            setTimeout(land, 800);
+        }
     }
 }
 
@@ -176,6 +187,7 @@ function redraw() {
   
     context.font = "bold 36px sans-serif";
     context.fillText(":" + score, 900, 585);
+    context.fillText(":" + livesCount, 900, 40);
     ++numFramesDrawn;
     score += 1;
 }
