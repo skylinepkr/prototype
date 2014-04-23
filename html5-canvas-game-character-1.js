@@ -39,6 +39,8 @@ var jumping = false;
 var score = 0;
 var livesCount = 3;
 var jumpCount = 0;
+var cocoArray = [];
+var numCoconuts = 6;
 
 function updateFPS() {
 	
@@ -74,6 +76,8 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("rightArm-jump");
 	loadImage("leftArm-jump");
 	loadImage("legs-jump");
+	loadImage("Coconut");
+
 }
 
 function loadImage(name) {
@@ -189,7 +193,14 @@ function redraw() {
     context.fillText(":" + score, 900, 585);
     context.fillText(":" + livesCount, 900, 40);
     ++numFramesDrawn;
+
+    this.fillCocoArray(canvas);
+    this.drawCoconuts(canvas);
+    this.updateArray();
+
     score += 1;
+
+   
 }
 
 function drawEllipse(centerX, centerY, width, height) {
@@ -246,4 +257,61 @@ function blink() {
   } else {
 	setTimeout(blink, 10);
   }
+}
+
+/**Draws the coconuts in the array*/
+function drawCoconuts(canvas) {
+    for (var i = 0; i < cocoArray.length ; i++) {
+        var coconut = cocoArray[i];
+        coconut.draw(canvas);
+        coconut.fall();
+    }
+
+}
+
+/** Removes coconuts that have fallen on the ground*/
+function updateArray() {
+    for (var i = cocoArray.length - 1; i >= 0; --i) {
+        if (cocoArray[i].removeFromWorld) {
+            cocoArray.splice(i, 1);
+        }
+    }
+    /*if (cocoArray.length === 0) {
+        full = false;
+    }*/
+}
+
+/**Add coconuts to the coconut array */
+function fillCocoArray(canvas) {
+
+    for (var i = 0; i < numCoconuts - cocoArray.length; i++) {
+        var ranx = Math.floor(Math.random() * canvas.width);
+        cocoArray.push(new Coconut(ranx, -70));
+    }
+    //full = true;
+}
+
+/** Contructs a coconut with given x,y coordinates*/
+function Coconut(x, y) {
+    this.x = x;
+    this.y = y;
+    this.removeFromWorld = false;
+    this.fallSpeed = Math.floor(Math.random() * 5) + 2;
+}
+
+/** Function that increments y coordinate of coconut */
+Coconut.prototype.fall = function () {
+
+    if (this.y < canvas.height) {
+        this.y += this.fallSpeed;
+
+    } else {
+        this.removeFromWorld = true;
+    }
+
+}
+
+/**Draws a coconut*/
+Coconut.prototype.draw = function () {
+    context.drawImage(images["Coconut"], this.x, this.y);
 }
