@@ -213,6 +213,35 @@ function drawEllipse(centerX, centerY, width, height) {
   context.closePath();	
 }
 
+//Background stuff
+var BackgroundScroll = function(params){
+    params = $.extend({
+        scrollSpeed:50,
+        imageWidth: $('#bg'),
+        imageHeight: $('#bg').height
+    }, params);
+
+    var step = 1,
+        current = 0,
+        restartPosition = - (params.imageWidth - params.imageHeight);
+
+    var scroll = function() {
+        current -= step;
+        if (current == restartPosition) {
+            current = 0;
+        }
+        $('#bg').css('backgroundPosition', current + 'px 0');
+    };
+
+    this.init = function(){
+        setInterval(scroll,params.scrollSpeed);
+    };
+};
+
+var scroll = new BackgroundScroll();
+scroll.init();
+//end Background stuff
+
 function updateBreath() { 
 				
   if (breathDir === 1) {  // breath in
