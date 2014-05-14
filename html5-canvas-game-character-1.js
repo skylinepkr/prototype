@@ -45,11 +45,17 @@ var bgX = 0, bgY = 0, bgX2 = 2768;
 var backgroundSpeed = 7;
 
 
+/*
+ * Updates the frames per second and frames drawn.
+*/
 function updateFPS() {
 	
 	curFPS = numFramesDrawn;
 	numFramesDrawn = 0;
-}		
+}
+/*
+ * Prepares the canvas and sets appropriate variables to the context and canvas.
+ */
 function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 {
 	// Create the canvas (Neccessary for IE because it doesn't know what a canvas element is)
@@ -83,6 +89,9 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 
 }
 
+/*
+ * Loads images in to an array and appends .png to each image
+ */
 function loadImage(name) {
 
   images[name] = new Image();
@@ -92,6 +101,9 @@ function loadImage(name) {
   images[name].src = "images/" + name + ".png";
 }
 
+/*
+ * Checks to see if all the resources have been loaded.
+ */
 function resourceLoaded() {
 
   numResourcesLoaded += 1;
@@ -101,6 +113,9 @@ function resourceLoaded() {
   }
 }
 
+/*
+ * Sets the jump flag to true allowing character to perform appropriate task.
+ */
 function jump() {
     if (!jumping) {
         if (livesCount == 0) {
@@ -119,12 +134,18 @@ function jump() {
     }
 }
 
+/*
+ * Controls the jump flag when character lands
+ * setting jump to false.
+ */
 function land() {
     jumping = false;
 }
 
-
-function drawBackground() { //2768x600
+/*
+ * Draws the background as a horizontal scroller.
+ */
+function drawBackground() { //2768x600 is the dimensions of background
     context.drawImage(images["background"], bgX, bgY);
     context.drawImage(images["background"], bgX2, bgY);
     if (bgX < -2767) {
@@ -137,7 +158,10 @@ function drawBackground() { //2768x600
     bgX2 -= backgroundSpeed;
 }
 
-
+/*
+ * Essentially this is the game loop which re-draws all objects
+ * and also is used as a listener.
+ */
 function redraw() {
 
     var x = charX;
@@ -216,10 +240,11 @@ function redraw() {
     this.updateArray();
 
     score += 1;
-
-   
 }
 
+/*
+ * Method to draw an ellipse.
+ */
 function drawEllipse(centerX, centerY, width, height) {
 
   context.beginPath();
@@ -241,6 +266,9 @@ function drawEllipse(centerX, centerY, width, height) {
   context.closePath();	
 }
 
+/*
+ * Updates the breathing of the character as the game progresses.
+ */
 function updateBreath() { 
 				
   if (breathDir === 1) {  // breath in
@@ -256,6 +284,9 @@ function updateBreath() {
   }
 }
 
+/*
+ * Updates the blink pattern of the character.
+ */
 function updateBlink() { 
 				
   eyeOpenTime += blinkUpdateTime;
@@ -265,6 +296,9 @@ function updateBlink() {
   }
 }
 
+/*
+ * Makes the character's eyes blink.
+ */
 function blink() {
 
   curEyeHeight -= 1;
@@ -276,7 +310,9 @@ function blink() {
   }
 }
 
-/**Draws the coconuts in the array*/
+/*
+ * Draws the coconuts in the array
+*/
 function drawCoconuts(canvas) {
     for (var i = 0; i < cocoArray.length ; i++) {
         var coconut = cocoArray[i];
@@ -286,7 +322,9 @@ function drawCoconuts(canvas) {
 
 }
 
-/** Removes coconuts that have fallen on the ground*/
+/* 
+* Removes coconuts that have fallen on the ground
+*/
 function updateArray() {
     for (var i = cocoArray.length - 1; i >= 0; --i) {
         if (cocoArray[i].removeFromWorld) {
@@ -298,7 +336,9 @@ function updateArray() {
     }*/
 }
 
-/**Add coconuts to the coconut array */
+/*
+* Add coconuts to the coconut array 
+*/
 function fillCocoArray(canvas) {
 
     for (var i = 0; i < numCoconuts - cocoArray.length; i++) {
@@ -308,7 +348,9 @@ function fillCocoArray(canvas) {
     //full = true;
 }
 
-/** Contructs a coconut with given x,y coordinates*/
+/* 
+ * Contructs a coconut with given x,y coordinates
+*/
 function Coconut(x, y) {
     this.x = x;
     this.y = y;
@@ -316,7 +358,9 @@ function Coconut(x, y) {
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
 }
 
-/** Function that increments y coordinate of coconut */
+/* 
+ * Function that increments y coordinate of coconut
+ */
 Coconut.prototype.fall = function () {
 
     if (this.y < canvas.height) {
@@ -328,7 +372,9 @@ Coconut.prototype.fall = function () {
 
 }
 
-/**Draws a coconut*/
+/*
+ *Draws a coconut
+ */
 Coconut.prototype.draw = function () {
     context.drawImage(images["Coconut"], this.x, this.y);
 }
