@@ -41,6 +41,8 @@ var livesCount = 3;
 var jumpCount = 0;
 var cocoArray = [];
 var numCoconuts = 6;
+var bgX = 0, bgY = 0, bgX2 = 2768;
+
 
 function updateFPS() {
 	
@@ -120,6 +122,20 @@ function land() {
 }
 
 
+function drawBackground() { //2768x600
+    context.drawImage(images["background"], bgX, bgY);
+    context.drawImage(images["background"], bgX2, bgY);
+    if (bgX < -2767) {
+        bgX = 2762;
+    }
+    if (bgX2 < -2767) {
+        bgX2 = 2762;
+    }
+    bgX -= 7;
+    bgX2 -= 7;
+}
+
+
 function redraw() {
 
     var x = charX;
@@ -127,7 +143,8 @@ function redraw() {
     var jumpHeight = 100;
 				
     canvas.width = canvas.width; // clears the canvas 
-    context.drawImage(images["background"], 0, 0); //draws background
+    drawBackground();
+  //  context.drawImage(images["background"], 0, 0); //draws background
   //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
 
     //Handle keyboard controls
