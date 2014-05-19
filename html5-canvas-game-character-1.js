@@ -24,7 +24,7 @@ var charY = 473; //185
 var breathInc = 0.1;
 var breathDir = 1;
 var breathAmt = 0;
-var breathMax = 2;
+var breathMax = 3;
 var breathInterval = setInterval(updateBreath, 1000 / fps);
 var maxEyeHeight = 6;
 var curEyeHeight = maxEyeHeight;
@@ -180,7 +180,7 @@ function redraw() {
             
         }
         if (e.keyCode === 39) { //right
-
+            
         }
     }, false);
 
@@ -301,7 +301,7 @@ function updateBlink() {
  */
 function blink() {
 
-  curEyeHeight -= 1;
+  curEyeHeight -= .4;
   if (curEyeHeight <= 0) {
 	eyeOpenTime = 0;
 	curEyeHeight = maxEyeHeight;
