@@ -36,11 +36,24 @@ var fpsInterval = setInterval(updateFPS, 1000);
 var numFramesDrawn = 0;
 var curFPS = 0;
 var jumping = false;
+var left = false;
+var right = false;
+var leftCount = 0;
+var rightCount = 0;
+var increment = 0;
+var lMoving = true;
+var rMoving = true;
+var x;
+var y;
 var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
 var numCoconuts = 6;
+
+var timer = new Timer();
+var clockTick = null;
+
 var bgX = 0, bgY = 0, bgX2 = 2768;
 var backgroundSpeed = 7;
 
@@ -86,6 +99,7 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("leftArm-jump");
 	loadImage("legs-jump");
 	loadImage("Coconut");
+	loadImage("cocoSprite");
 
 }
 
@@ -118,6 +132,12 @@ function resourceLoaded() {
  */
 function jump() {
     if (!jumping) {
+        jumping = true;
+        setTimeout(land, 800);
+    }
+
+
+    if (!jumping) {
         if (livesCount == 0) {
             jumping = false;
         }
@@ -134,12 +154,90 @@ function jump() {
     }
 }
 
+function moveLeft() {
+    if (!left) {
+        left = true;
+    }
+
+}
+
+function moveRight() {
+    if (!right) {
+        right = true;
+    }
+
+}
+
+function stopLeft() {
+    left = false;
+}
+
+function stopRight() {
+    right = false;
+}
+
+
 /*
  * Controls the jump flag when character lands
  * setting jump to false.
  */
+
 function land() {
     jumping = false;
+}
+
+function inc(speed)
+{
+
+        if(left) //going left
+        {
+                //0     to   slowdown
+            if (increment >= speed && lMoving) {
+                increment = increment - 2;
+
+            }   
+
+            if (increment < speed || !lMoving)
+            {
+               
+               lMoving = false;
+               increment = increment + 1;
+
+               if (increment >= 0) {
+                   increment = 0;
+                   lMoving = true;
+                   stopLeft();
+
+               }
+
+            }
+
+           
+        }
+        else { //going right
+
+                //0    to    movefast
+            if (increment <= speed && rMoving) {
+                increment = increment + 2;
+  
+            }
+
+            if(increment > speed || !rMoving) {
+                rMoving = false;
+                increment = increment - 1;
+
+                if (increment <= 0) {
+                    increment = 0;
+                    rightCount = 0;
+                    rMoving = true;
+                    stopRight();
+                    
+                }
+
+            }
+
+        }
+
 }
 
 /*
@@ -164,29 +262,39 @@ function drawBackground() { //2768x600 is the dimensions of background
  */
 function redraw() {
 
-    var x = charX;
-    var y = charY;
+    x = charX;
+    y = charY;
     var jumpHeight = 100;
+    var slowdown = -200;
+    var movefast = 500;
+    var count = 0;
 				
     canvas.width = canvas.width; // clears the canvas 
     drawBackground(); //draw background
 
     //Handle keyboard controls
-    window.addEventListener('keypress', function (e) {
+    window.addEventListener('keydown', function (e) {
+  
         if (e.keyCode === 32) { //space
             jump();
         }
+
         if (e.keyCode === 37) { //left
-            
+            moveLeft();
         }
         if (e.keyCode === 39) { //right
+<<<<<<< HEAD
             
+=======
+            moveRight();
+>>>>>>> cf91648a15be1fe9866475ad11680d44ea8a3db4
         }
+     
     }, false);
 
     //draw shadow
     if (jumping) {
-        drawEllipse(x + 40, y+29,100-breathAmt, 4)
+        drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
     }
 
     if (jumping) {
@@ -195,7 +303,18 @@ function redraw() {
 
     //Left arm
     if (jumping) {
-        context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
+    }
+    else if (left || right) {
+         if (left)
+         {
+            inc(slowdown);
+         }
+         else {
+            inc(movefast);
+         }
+
+        context.drawImage(images["leftArm"], increment + x + 40, y - 42 - breathAmt);
     }
     else {
         context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
@@ -203,19 +322,64 @@ function redraw() {
 
     //Legs
     if (jumping) {
-        context.drawImage(images["legs-jump"], x - 6, y);
+        context.drawImage(images["legs-jump"], x + increment - 6, y);
+    }
+    else if (left || right) {
+         if (left) {
+             inc(slowdown);
+         }
+         else {
+             inc(movefast);
+         }
+
+        context.drawImage(images["legs"], increment + x, y);
     }
     else {
         context.drawImage(images["legs"], x, y);
     }
 
-    context.drawImage(images["torso"], x, y - 50);
-    context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
-    context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+
+    //torso, head, hair
+
+    if(left){
+        inc(slowdown);
+
+        context.drawImage(images["torso"], x + increment, y - 50);
+        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
+        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
+    else if(right){
+        inc(movefast);
+
+        context.drawImage(images["torso"], x + increment, y - 50);
+        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
+        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
+    else {
+        context.drawImage(images["torso"], x, y - 50);
+        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
 
     //Right Arm
     if (jumping) {
-        context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        context.drawImage(images["rightArm-jump"], x + increment - 35, y - 42 - breathAmt);
+    }
+    else if (left || right) { 
+         if (left) {
+             inc(slowdown);
+         }
+         else {
+             inc(movefast);
+         } 
+
+        context.drawImage(images["rightArm"], increment + x - 15, y - 42 - breathAmt);
     }
     else {
         context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
@@ -225,21 +389,27 @@ function redraw() {
     context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
     context.drawImage(images["lives"], 800, 5);
     context.drawImage(images["score"], 800, 550);
-    
-	
-    //drawEllipse(x + 47, y - 68 - breathAmt, 8, curEyeHeight); // Left Eye
-    drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
   
     context.font = "bold 36px sans-serif";
     context.fillText(":" + score, 900, 585);
     context.fillText(":" + livesCount, 900, 40);
     ++numFramesDrawn;
 
+    //drawEllipse(charX, charY, 20, 20);
+
+    clockTick = timer.tick();
     this.fillCocoArray(canvas);
     this.drawCoconuts(canvas);
     this.updateArray();
 
+    context.beginPath();
+    context.moveTo(0, canvas.height - 100);
+    context.lineTo(canvas.width, canvas.height - 100);
+    context.stroke();
+
     score += 1;
+   
 }
 
 /*
@@ -356,6 +526,9 @@ function Coconut(x, y) {
     this.y = y;
     this.removeFromWorld = false;
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
+    
+
 }
 
 /* 
@@ -363,7 +536,7 @@ function Coconut(x, y) {
  */
 Coconut.prototype.fall = function () {
 
-    if (this.y < canvas.height) {
+    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
         this.y += this.fallSpeed;
 
     } else {
@@ -376,5 +549,83 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
-    context.drawImage(images["Coconut"], this.x, this.y);
+    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
+        //context.drawImage(images["cocobreak"], this.x, this.y);
+        this.animation.drawFrame(clockTick, context, this.x, this.y);
+
+    } else {
+        context.drawImage(images["Coconut"], this.x, this.y);
+        
+    }
+    
+}
+
+function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+    this.spriteSheet = spriteSheet;
+    this.startX = startX;
+    this.startY = startY;
+    this.frameWidth = frameWidth;
+    this.frameDuration = frameDuration;
+    this.frameHeight = frameHeight;
+    this.frames = frames;
+    this.totalTime = frameDuration * frames;
+    this.elapsedTime = 0;
+    this.loop = loop;
+    this.reverse = reverse;
+}
+
+Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+    var scaleBy = scaleBy || 1;
+    this.elapsedTime += tick;
+    if (this.loop) {
+        if (this.isDone()) {
+            this.elapsedTime = 0;
+        }
+    } else if (this.isDone()) {
+        return;
+    }
+    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+    var vindex = 0;
+    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+        vindex++;
+    }
+    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+        vindex++;
+    }
+
+    var locX = x;
+    var locY = y;
+    var offset = vindex === 0 ? this.startX : 0;
+    ctx.drawImage(this.spriteSheet,
+                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                  this.frameWidth, this.frameHeight,
+                  locX, locY,
+                  this.frameWidth * scaleBy,
+                  this.frameHeight * scaleBy);
+}
+
+Animation.prototype.currentFrame = function () {
+    return Math.floor(this.elapsedTime / this.frameDuration);
+}
+
+Animation.prototype.isDone = function () {
+    return (this.elapsedTime >= this.totalTime);
+}
+
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+    var wallCurrent = Date.now();
+    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+    this.wallLastTimestamp = wallCurrent;
+
+    var gameDelta = Math.min(wallDelta, this.maxStep);
+    this.gameTime += gameDelta;
+    return gameDelta;
 }
