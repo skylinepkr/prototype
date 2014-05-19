@@ -46,16 +46,29 @@ var rMoving = true;
 var x;
 var y;
 var score = 0;
-var livesCount = 3;
+var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
 var numCoconuts = 6;
 
+var timer = new Timer();
+var clockTick = null;
+
+var bgX = 0, bgY = 0, bgX2 = 2768;
+var backgroundSpeed = 7;
+
+
+/*
+ * Updates the frames per second and frames drawn.
+*/
 function updateFPS() {
 	
 	curFPS = numFramesDrawn;
 	numFramesDrawn = 0;
-}		
+}
+/*
+ * Prepares the canvas and sets appropriate variables to the context and canvas.
+ */
 function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 {
 	// Create the canvas (Neccessary for IE because it doesn't know what a canvas element is)
@@ -86,9 +99,13 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("leftArm-jump");
 	loadImage("legs-jump");
 	loadImage("Coconut");
+	loadImage("cocoSprite");
 
 }
 
+/*
+ * Loads images in to an array and appends .png to each image
+ */
 function loadImage(name) {
 
   images[name] = new Image();
@@ -98,6 +115,9 @@ function loadImage(name) {
   images[name].src = "images/" + name + ".png";
 }
 
+/*
+ * Checks to see if all the resources have been loaded.
+ */
 function resourceLoaded() {
 
   numResourcesLoaded += 1;
@@ -107,6 +127,9 @@ function resourceLoaded() {
   }
 }
 
+/*
+ * Sets the jump flag to true allowing character to perform appropriate task.
+ */
 function jump() {
     if (!jumping) {
         jumping = true;
@@ -124,12 +147,14 @@ function jump() {
             if (jumpCount > 7)
             {
                 livesCount--;
+                jumpCount = 1;
             }
             setTimeout(land, 800);
         }
     }
 }
 
+<<<<<<< HEAD
 function moveLeft() {
     if (!left) {
         left = true;
@@ -154,10 +179,17 @@ function stopRight() {
 
 
 
+=======
+/*
+ * Controls the jump flag when character lands
+ * setting jump to false.
+ */
+>>>>>>> a303c1eaf47284f88cb338cfe0b2480b384c3cb4
 function land() {
     jumping = false;
 }
 
+<<<<<<< HEAD
 function inc(speed)
 {
 
@@ -212,7 +244,28 @@ function inc(speed)
 
 }
 
+=======
+/*
+ * Draws the background as a horizontal scroller.
+ */
+function drawBackground() { //2768x600 is the dimensions of background
+    context.drawImage(images["background"], bgX, bgY);
+    context.drawImage(images["background"], bgX2, bgY);
+    if (bgX < -2767) {
+        bgX = 2762;
+    }
+    if (bgX2 < -2767) {
+        bgX2 = 2762;
+    }
+    bgX -= backgroundSpeed;
+    bgX2 -= backgroundSpeed;
+}
+>>>>>>> a303c1eaf47284f88cb338cfe0b2480b384c3cb4
 
+/*
+ * Essentially this is the game loop which re-draws all objects
+ * and also is used as a listener.
+ */
 function redraw() {
 
     x = charX;
@@ -223,8 +276,7 @@ function redraw() {
     var count = 0;
 				
     canvas.width = canvas.width; // clears the canvas 
-    context.drawImage(images["background"], 0, 0); //draws background
-  //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
+    drawBackground(); //draw background
 
     //Handle keyboard controls
     window.addEventListener('keydown', function (e) {
@@ -346,15 +398,25 @@ function redraw() {
     context.fillText(":" + livesCount, 900, 40);
     ++numFramesDrawn;
 
+    //drawEllipse(charX, charY, 20, 20);
+
+    clockTick = timer.tick();
     this.fillCocoArray(canvas);
     this.drawCoconuts(canvas);
     this.updateArray();
 
-    score += 1;
+    context.beginPath();
+    context.moveTo(0, canvas.height - 100);
+    context.lineTo(canvas.width, canvas.height - 100);
+    context.stroke();
 
+    score += 1;
    
 }
 
+/*
+ * Method to draw an ellipse.
+ */
 function drawEllipse(centerX, centerY, width, height) {
 
   context.beginPath();
@@ -376,6 +438,9 @@ function drawEllipse(centerX, centerY, width, height) {
   context.closePath();	
 }
 
+/*
+ * Updates the breathing of the character as the game progresses.
+ */
 function updateBreath() { 
 				
   if (breathDir === 1) {  // breath in
@@ -391,6 +456,9 @@ function updateBreath() {
   }
 }
 
+/*
+ * Updates the blink pattern of the character.
+ */
 function updateBlink() { 
 				
   eyeOpenTime += blinkUpdateTime;
@@ -400,6 +468,9 @@ function updateBlink() {
   }
 }
 
+/*
+ * Makes the character's eyes blink.
+ */
 function blink() {
 
   curEyeHeight -= 1;
@@ -411,7 +482,9 @@ function blink() {
   }
 }
 
-/**Draws the coconuts in the array*/
+/*
+ * Draws the coconuts in the array
+*/
 function drawCoconuts(canvas) {
     for (var i = 0; i < cocoArray.length ; i++) {
         var coconut = cocoArray[i];
@@ -421,7 +494,9 @@ function drawCoconuts(canvas) {
 
 }
 
-/** Removes coconuts that have fallen on the ground*/
+/* 
+* Removes coconuts that have fallen on the ground
+*/
 function updateArray() {
     for (var i = cocoArray.length - 1; i >= 0; --i) {
         if (cocoArray[i].removeFromWorld) {
@@ -433,7 +508,9 @@ function updateArray() {
     }*/
 }
 
-/**Add coconuts to the coconut array */
+/*
+* Add coconuts to the coconut array 
+*/
 function fillCocoArray(canvas) {
 
     for (var i = 0; i < numCoconuts - cocoArray.length; i++) {
@@ -443,18 +520,25 @@ function fillCocoArray(canvas) {
     //full = true;
 }
 
-/** Contructs a coconut with given x,y coordinates*/
+/* 
+ * Contructs a coconut with given x,y coordinates
+*/
 function Coconut(x, y) {
     this.x = x;
     this.y = y;
     this.removeFromWorld = false;
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 65, 0.02, 6, true, false);
+    
+
 }
 
-/** Function that increments y coordinate of coconut */
+/* 
+ * Function that increments y coordinate of coconut
+ */
 Coconut.prototype.fall = function () {
 
-    if (this.y < canvas.height) {
+    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
         this.y += this.fallSpeed;
 
     } else {
@@ -463,7 +547,87 @@ Coconut.prototype.fall = function () {
 
 }
 
-/**Draws a coconut*/
+/*
+ *Draws a coconut
+ */
 Coconut.prototype.draw = function () {
-    context.drawImage(images["Coconut"], this.x, this.y);
+    if (this.y > canvas.height - 100) {   //+ images["Coconut"].height)
+        //context.drawImage(images["cocobreak"], this.x, this.y);
+        this.animation.drawFrame(clockTick, context, this.x, this.y);
+
+    } else {
+        context.drawImage(images["Coconut"], this.x, this.y);
+        
+    }
+    
+}
+
+function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+    this.spriteSheet = spriteSheet;
+    this.startX = startX;
+    this.startY = startY;
+    this.frameWidth = frameWidth;
+    this.frameDuration = frameDuration;
+    this.frameHeight = frameHeight;
+    this.frames = frames;
+    this.totalTime = frameDuration * frames;
+    this.elapsedTime = 0;
+    this.loop = loop;
+    this.reverse = reverse;
+}
+
+Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+    var scaleBy = scaleBy || 1;
+    this.elapsedTime += tick;
+    if (this.loop) {
+        if (this.isDone()) {
+            this.elapsedTime = 0;
+        }
+    } else if (this.isDone()) {
+        return;
+    }
+    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+    var vindex = 0;
+    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+        vindex++;
+    }
+    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+        vindex++;
+    }
+
+    var locX = x;
+    var locY = y;
+    var offset = vindex === 0 ? this.startX : 0;
+    ctx.drawImage(this.spriteSheet,
+                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                  this.frameWidth, this.frameHeight,
+                  locX, locY,
+                  this.frameWidth * scaleBy,
+                  this.frameHeight * scaleBy);
+}
+
+Animation.prototype.currentFrame = function () {
+    return Math.floor(this.elapsedTime / this.frameDuration);
+}
+
+Animation.prototype.isDone = function () {
+    return (this.elapsedTime >= this.totalTime);
+}
+
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+    var wallCurrent = Date.now();
+    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+    this.wallLastTimestamp = wallCurrent;
+
+    var gameDelta = Math.min(wallDelta, this.maxStep);
+    this.gameTime += gameDelta;
+    return gameDelta;
 }
