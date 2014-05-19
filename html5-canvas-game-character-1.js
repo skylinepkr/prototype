@@ -90,7 +90,7 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("leftArm-jump");
 	loadImage("legs-jump");
 	loadImage("Coconut");
-	loadImage("cocosprite");
+	loadImage("cocoSprite");
 
 }
 
@@ -370,7 +370,7 @@ function Coconut(x, y) {
     this.y = y;
     this.removeFromWorld = false;
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
-    this.animation = new Animation(images["cocosprite"], 0, 0, 93, 65, 0.02, 6, true, false);
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 65, 0.02, 6, true, false);
     
 
 }
