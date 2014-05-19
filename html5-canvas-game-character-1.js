@@ -528,7 +528,7 @@ function Coconut(x, y) {
     this.y = y;
     this.removeFromWorld = false;
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
-    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 65, 0.02, 6, true, false);
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
     
 
 }
@@ -551,7 +551,7 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
-    if (this.y > canvas.height - 100) {   //+ images["Coconut"].height)
+    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
         //context.drawImage(images["cocobreak"], this.x, this.y);
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
