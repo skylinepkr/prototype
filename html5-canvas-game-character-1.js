@@ -36,6 +36,15 @@ var fpsInterval = setInterval(updateFPS, 1000);
 var numFramesDrawn = 0;
 var curFPS = 0;
 var jumping = false;
+var left = false;
+var right = false;
+var leftCount = 0;
+var rightCount = 0;
+var increment = 0;
+var lMoving = true;
+var rMoving = true;
+var x;
+var y;
 var score = 0;
 var livesCount = 3;
 var jumpCount = 0;
@@ -100,6 +109,12 @@ function resourceLoaded() {
 
 function jump() {
     if (!jumping) {
+        jumping = true;
+        setTimeout(land, 800);
+    }
+
+
+    if (!jumping) {
         if (livesCount == 0) {
             jumping = false;
         }
@@ -115,37 +130,121 @@ function jump() {
     }
 }
 
+function moveLeft() {
+    if (!left) {
+        left = true;
+    }
+
+}
+
+function moveRight() {
+    if (!right) {
+        right = true;
+    }
+
+}
+
+function stopLeft() {
+    left = false;
+}
+
+function stopRight() {
+    right = false;
+}
+
+
+
 function land() {
     jumping = false;
+}
+
+function inc(speed)
+{
+
+        if(left) //going left
+        {
+                //0     to   slowdown
+            if (increment >= speed && lMoving) {
+                increment = increment - 2;
+
+            }   
+
+            if (increment < speed || !lMoving)
+            {
+               
+               lMoving = false;
+               increment = increment + 1;
+
+               if (increment >= 0) {
+                   increment = 0;
+                   lMoving = true;
+                   stopLeft();
+
+               }
+
+            }
+
+           
+        }
+        else { //going right
+
+                //0    to    movefast
+            if (increment <= speed && rMoving) {
+                increment = increment + 2;
+  
+            }
+
+            if(increment > speed || !rMoving) {
+                rMoving = false;
+                increment = increment - 1;
+
+                if (increment <= 0) {
+                    increment = 0;
+                    rightCount = 0;
+                    rMoving = true;
+                    stopRight();
+                    
+                }
+
+            }
+
+        }
+
 }
 
 
 function redraw() {
 
-    var x = charX;
-    var y = charY;
+    x = charX;
+    y = charY;
     var jumpHeight = 100;
+    var slowdown = -200;
+    var movefast = 500;
+    var count = 0;
 				
     canvas.width = canvas.width; // clears the canvas 
     context.drawImage(images["background"], 0, 0); //draws background
   //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
 
     //Handle keyboard controls
-    window.addEventListener('keypress', function (e) {
+    window.addEventListener('keydown', function (e) {
+  
         if (e.keyCode === 32) { //space
             jump();
         }
+
         if (e.keyCode === 37) { //left
-            
+            moveLeft();
         }
         if (e.keyCode === 39) { //right
-
+            moveRight();
         }
+     
     }, false);
 
     //draw shadow
     if (jumping) {
-        drawEllipse(x + 40, y+29,100-breathAmt, 4)
+        drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
     }
 
     if (jumping) {
@@ -154,7 +253,18 @@ function redraw() {
 
     //Left arm
     if (jumping) {
-        context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
+    }
+    else if (left || right) {
+         if (left)
+         {
+            inc(slowdown);
+         }
+         else {
+            inc(movefast);
+         }
+
+        context.drawImage(images["leftArm"], increment + x + 40, y - 42 - breathAmt);
     }
     else {
         context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
@@ -162,19 +272,64 @@ function redraw() {
 
     //Legs
     if (jumping) {
-        context.drawImage(images["legs-jump"], x - 6, y);
+        context.drawImage(images["legs-jump"], x + increment - 6, y);
+    }
+    else if (left || right) {
+         if (left) {
+             inc(slowdown);
+         }
+         else {
+             inc(movefast);
+         }
+
+        context.drawImage(images["legs"], increment + x, y);
     }
     else {
         context.drawImage(images["legs"], x, y);
     }
 
-    context.drawImage(images["torso"], x, y - 50);
-    context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
-    context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+
+    //torso, head, hair
+
+    if(left){
+        inc(slowdown);
+
+        context.drawImage(images["torso"], x + increment, y - 50);
+        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
+        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
+    else if(right){
+        inc(movefast);
+
+        context.drawImage(images["torso"], x + increment, y - 50);
+        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
+        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
+    else {
+        context.drawImage(images["torso"], x, y - 50);
+        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+    }
 
     //Right Arm
     if (jumping) {
-        context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        context.drawImage(images["rightArm-jump"], x + increment - 35, y - 42 - breathAmt);
+    }
+    else if (left || right) { 
+         if (left) {
+             inc(slowdown);
+         }
+         else {
+             inc(movefast);
+         } 
+
+        context.drawImage(images["rightArm"], increment + x - 15, y - 42 - breathAmt);
     }
     else {
         context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
@@ -184,10 +339,7 @@ function redraw() {
     context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
     context.drawImage(images["lives"], 800, 5);
     context.drawImage(images["score"], 800, 550);
-    
-	
-    //drawEllipse(x + 47, y - 68 - breathAmt, 8, curEyeHeight); // Left Eye
-    drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
   
     context.font = "bold 36px sans-serif";
     context.fillText(":" + score, 900, 585);
