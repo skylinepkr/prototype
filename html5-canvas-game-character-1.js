@@ -49,7 +49,22 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
+var highscorelist = [0,0,0,0,0];
 var numCoconuts = 6;
+var menuval = 0;
+var state = {
+  MainMenu : {value: 0, name: "MainMenu"}, 
+  Gameplay: {value: 1, name: "Gameplay"}, 
+  Pause : {value: 2, name: "Pause"},
+  HighScore: {value: 3, name: "HighScore"}
+};
+
+var menu = {
+    Play: { value: 0, name: "MainMenu" },
+    HighScore: { value: 1, name: "Gameplay" }
+};
+var currentstate = state.MainMenu;
+
 
 var state = {
     MainMenu: { value: 0, name: "MainMenu" },
@@ -145,6 +160,7 @@ function resourceLoaded() {
  * Sets the jump flag to true allowing character to perform appropriate task.
  */
 function jump() {
+<<<<<<< HEAD
     
     jumping = true;
     jumpCount++;
@@ -153,6 +169,33 @@ function jump() {
         livesCount--;
     }
     setTimeout(land, 800);
+=======
+    if (!jumping) {
+<<<<<<< HEAD
+
+=======
+        jumping = true;
+        setTimeout(land, 800);
+    }
+
+
+    if (!jumping) {
+        if (livesCount == 0) {
+            jumping = false;
+        }
+        else {
+>>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
+            jumping = true;
+            jumpCount++;
+            if (jumpCount > 3)
+            {
+                livesCount--;
+                jumpCount = 1;
+            }
+            setTimeout(land, 800);
+        }
+    
+>>>>>>> d1454f33e1d5eec3e97c1f2814c4e25ef988c8cd
 }
 
 function moveLeft() {
@@ -262,7 +305,104 @@ function drawBackground() { //2768x600 is the dimensions of background
  * and also is used as a listener.
  */
 function redraw() {
+    if (currentstate == state.MainMenu) {
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        score = 0;
+        livesCount = 3;
+        jumpCount = 0;
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+                if (menuval == 0) {
+                    currentstate = state.Gameplay;
+                }
+                else {
+                    currentstate = state.HighScore;
+                }
+            }
+            if (e.keyCode === 49) { //up
+                if (menuval == 0) {
+                    menuval = 1;
+                }
+                else {
+                    menuval = 0;
+                }
+            }
 
+<<<<<<< HEAD
+        }, false);
+        context.font = "bold 36px sans-serif";
+        if (menuval == 0) {
+            context.fillText("Play Game", 350, 300);
+        }
+        else if (menuval ==1) {
+            context.fillText("HighScore", 350, 300);
+        }
+        
+        this.updateArray();
+
+    }
+    else if(currentstate == state.HighScore)
+    {
+        context.font = "bold 36px sans-serif";
+        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
+        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
+        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
+        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
+        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+
+                currentstate = state.MainMenu;
+            }
+        }, false);
+    }
+    else if (currentstate == state.Gameplay) {
+        if (livesCount == 0) {
+            if (score > highscorelist[4])
+            {
+                var i = 4;
+                while(score > highscorelist[i] && i > 0)
+                {
+                    i--;
+                }
+                if (i == 0)
+                {
+                    highscorelist[4] = highscorelist[3];
+                    highscorelist[3] = highscorelist[2];
+                    highscorelist[2] = highscorelist[1];
+                    highscorelist[1] = highscorelist[0];
+                    highscorelist[i] = score;
+
+                }
+                else
+                {
+                    highscorelist[i] = score;
+                }
+                
+            }
+            
+            currentstate = state.HighScore;
+        }
+        var x = charX;
+        var y = charY;
+        var jumpHeight = 100;
+
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
+
+        //Handle keyboard controls
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32 && currentstate == state.Gameplay) { //space
+                jump();
+            }
+            if (e.keyCode === 37) { //left
+
+            }
+            if (e.keyCode === 39) { //right
+
+<<<<<<< HEAD
     if (currentstate == state.MainMenu) {
         canvas.width = canvas.width; // clears the canvas 
         context.drawImage(images["background"], 0, 0); //draws background
@@ -339,6 +479,20 @@ function redraw() {
         }
     }
 
+=======
+            }
+        }, false);
+
+        //draw shadow
+        if (jumping) {
+            drawEllipse(x + 40, y + 29, 100 - breathAmt, 4)
+        }
+
+        if (jumping) {
+            y -= jumpHeight;
+        }
+=======
+>>>>>>> d1454f33e1d5eec3e97c1f2814c4e25ef988c8cd
     x = charX;
     y = charY;
     var jumpHeight = 100;
@@ -369,11 +523,58 @@ function redraw() {
     if (jumping) {
         drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
     }
+>>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
 
-    if (jumping) {
-        y -= jumpHeight;
+        //Left arm
+        if (jumping) {
+            context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        }
+        else {
+            context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
+        }
+
+<<<<<<< HEAD
+        //Legs
+        if (jumping) {
+            context.drawImage(images["legs-jump"], x - 6, y);
+        }
+        else {
+            context.drawImage(images["legs"], x, y);
+        }
+
+        context.drawImage(images["torso"], x, y - 50);
+        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+
+        //Right Arm
+        if (jumping) {
+            context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        }
+        else {
+            context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
+        }
+
+
+        context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
+        context.drawImage(images["lives"], 800, 5);
+        context.drawImage(images["score"], 800, 550);
+
+
+        //drawEllipse(x + 47, y - 68 - breathAmt, 8, curEyeHeight); // Left Eye
+        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+        context.font = "bold 36px sans-serif";
+        context.fillText(":" + score, 900, 585);
+        context.fillText(":" + livesCount, 900, 40);
+        ++numFramesDrawn;
+
+        this.fillCocoArray(canvas);
+        this.drawCoconuts(canvas);
+        this.updateArray();
+
+        score += 1;
     }
-
+=======
     //Left arm
     if (jumping) {
         context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
@@ -482,6 +683,7 @@ function redraw() {
     context.stroke();
 
     score += 1;
+>>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
    
 }
 
