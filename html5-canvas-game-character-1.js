@@ -51,6 +51,20 @@ var jumpCount = 0;
 var cocoArray = [];
 var numCoconuts = 6;
 
+var state = {
+    MainMenu: { value: 0, name: "MainMenu" },
+    Gameplay: { value: 1, name: "Gameplay" },
+    Pause: { value: 2, name: "Pause" },
+    HighScore: { value: 3, name: "HighScore" }
+};
+
+var menu = {
+    Play: { value: 0, name: "MainMenu" },
+    HighScore: { value: 1, name: "Gameplay" }
+};
+var currentstate = state.MainMenu;
+var menuval = 0;
+var highscorelist = [0, 0, 0, 0, 0];
 var timer = new Timer();
 var clockTick = null;
 
@@ -131,27 +145,14 @@ function resourceLoaded() {
  * Sets the jump flag to true allowing character to perform appropriate task.
  */
 function jump() {
-    if (!jumping) {
-        jumping = true;
-        setTimeout(land, 800);
+    
+    jumping = true;
+    jumpCount++;
+    if (jumpCount > 3)
+    {
+        livesCount--;
     }
-
-
-    if (!jumping) {
-        if (livesCount == 0) {
-            jumping = false;
-        }
-        else {
-            jumping = true;
-            jumpCount++;
-            if (jumpCount > 7)
-            {
-                livesCount--;
-                jumpCount = 1;
-            }
-            setTimeout(land, 800);
-        }
-    }
+    setTimeout(land, 800);
 }
 
 function moveLeft() {
@@ -262,6 +263,82 @@ function drawBackground() { //2768x600 is the dimensions of background
  */
 function redraw() {
 
+    if (currentstate == state.MainMenu) {
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        score = 0;
+        livesCount = 3;
+        jumpCount = 0;
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+                if (menuval == 0) {
+                    currentstate = state.Gameplay;
+                }
+                else {
+                    currentstate = state.HighScore;
+                }
+            }
+            if (e.keyCode === 49) { //up
+                if (menuval == 0) {
+                    menuval = 1;
+                }
+                else {
+                    menuval = 0;
+                }
+            }
+
+        }, false);
+        context.font = "bold 36px sans-serif";
+        if (menuval == 0) {
+            context.fillText("Play Game", 350, 300);
+        }
+        else if (menuval ==1) {
+            context.fillText("HighScore", 350, 300);
+        }
+        
+        this.updateArray();
+
+    }
+    else if(currentstate == state.HighScore)
+    {
+        context.font = "bold 36px sans-serif";
+        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
+        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
+        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
+        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
+        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+
+                currentstate = state.MainMenu;
+            }
+        }, false);
+    }
+    else if (currentstate == state.Gameplay) {
+        if (livesCount == 0) {
+            if (score > highscorelist[4]) {
+                var i = 4;
+                while (score > highscorelist[i] && i > 0) {
+                    i--;
+                }
+                if (i == 0) {
+                    highscorelist[4] = highscorelist[3];
+                    highscorelist[3] = highscorelist[2];
+                    highscorelist[2] = highscorelist[1];
+                    highscorelist[1] = highscorelist[0];
+                    highscorelist[i] = score;
+
+                }
+                else {
+                    highscorelist[i] = score;
+                }
+
+            }
+
+            currentstate = state.HighScore;
+        }
+    }
+
     x = charX;
     y = charY;
     var jumpHeight = 100;
@@ -283,11 +360,7 @@ function redraw() {
             moveLeft();
         }
         if (e.keyCode === 39) { //right
-<<<<<<< HEAD
-            
-=======
             moveRight();
->>>>>>> cf91648a15be1fe9866475ad11680d44ea8a3db4
         }
      
     }, false);
