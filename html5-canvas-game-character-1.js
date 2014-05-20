@@ -160,7 +160,7 @@ function resourceLoaded() {
  * Sets the jump flag to true allowing character to perform appropriate task.
  */
 function jump() {
-<<<<<<< HEAD
+
     
     jumping = true;
     jumpCount++;
@@ -169,11 +169,9 @@ function jump() {
         livesCount--;
     }
     setTimeout(land, 800);
-=======
-    if (!jumping) {
-<<<<<<< HEAD
 
-=======
+    if (!jumping) {
+
         jumping = true;
         setTimeout(land, 800);
     }
@@ -184,7 +182,6 @@ function jump() {
             jumping = false;
         }
         else {
->>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
             jumping = true;
             jumpCount++;
             if (jumpCount > 3)
@@ -194,8 +191,6 @@ function jump() {
             }
             setTimeout(land, 800);
         }
-    
->>>>>>> d1454f33e1d5eec3e97c1f2814c4e25ef988c8cd
 }
 
 function moveLeft() {
@@ -251,12 +246,8 @@ function inc(speed)
                    increment = 0;
                    lMoving = true;
                    stopLeft();
-
                }
-
             }
-
-           
         }
         else { //going right
 
@@ -277,11 +268,8 @@ function inc(speed)
                     stopRight();
                     
                 }
-
             }
-
         }
-
 }
 
 /*
@@ -305,104 +293,6 @@ function drawBackground() { //2768x600 is the dimensions of background
  * and also is used as a listener.
  */
 function redraw() {
-    if (currentstate == state.MainMenu) {
-        canvas.width = canvas.width; // clears the canvas 
-        context.drawImage(images["background"], 0, 0); //draws background
-        score = 0;
-        livesCount = 3;
-        jumpCount = 0;
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32) { //space
-                if (menuval == 0) {
-                    currentstate = state.Gameplay;
-                }
-                else {
-                    currentstate = state.HighScore;
-                }
-            }
-            if (e.keyCode === 49) { //up
-                if (menuval == 0) {
-                    menuval = 1;
-                }
-                else {
-                    menuval = 0;
-                }
-            }
-
-<<<<<<< HEAD
-        }, false);
-        context.font = "bold 36px sans-serif";
-        if (menuval == 0) {
-            context.fillText("Play Game", 350, 300);
-        }
-        else if (menuval ==1) {
-            context.fillText("HighScore", 350, 300);
-        }
-        
-        this.updateArray();
-
-    }
-    else if(currentstate == state.HighScore)
-    {
-        context.font = "bold 36px sans-serif";
-        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
-        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
-        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
-        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
-        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32) { //space
-
-                currentstate = state.MainMenu;
-            }
-        }, false);
-    }
-    else if (currentstate == state.Gameplay) {
-        if (livesCount == 0) {
-            if (score > highscorelist[4])
-            {
-                var i = 4;
-                while(score > highscorelist[i] && i > 0)
-                {
-                    i--;
-                }
-                if (i == 0)
-                {
-                    highscorelist[4] = highscorelist[3];
-                    highscorelist[3] = highscorelist[2];
-                    highscorelist[2] = highscorelist[1];
-                    highscorelist[1] = highscorelist[0];
-                    highscorelist[i] = score;
-
-                }
-                else
-                {
-                    highscorelist[i] = score;
-                }
-                
-            }
-            
-            currentstate = state.HighScore;
-        }
-        var x = charX;
-        var y = charY;
-        var jumpHeight = 100;
-
-        canvas.width = canvas.width; // clears the canvas 
-        context.drawImage(images["background"], 0, 0); //draws background
-        //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
-
-        //Handle keyboard controls
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32 && currentstate == state.Gameplay) { //space
-                jump();
-            }
-            if (e.keyCode === 37) { //left
-
-            }
-            if (e.keyCode === 39) { //right
-
-<<<<<<< HEAD
     if (currentstate == state.MainMenu) {
         canvas.width = canvas.width; // clears the canvas 
         context.drawImage(images["background"], 0, 0); //draws background
@@ -477,9 +367,99 @@ function redraw() {
 
             currentstate = state.HighScore;
         }
-    }
+        var x = charX;
+        var y = charY;
+        var jumpHeight = 100;
 
-=======
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
+
+        //Handle keyboard controls
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32 && currentstate == state.Gameplay) { //space
+                jump();
+            }
+            if (e.keyCode === 37) { //left
+
+            }
+            if (e.keyCode === 39) { //right
+
+                if (currentstate == state.MainMenu) {
+                    canvas.width = canvas.width; // clears the canvas 
+                    context.drawImage(images["background"], 0, 0); //draws background
+                    score = 0;
+                    livesCount = 3;
+                    jumpCount = 0;
+                    window.addEventListener('keypress', function (e) {
+                        if (e.keyCode === 32) { //space
+                            if (menuval == 0) {
+                                currentstate = state.Gameplay;
+                            }
+                            else {
+                                currentstate = state.HighScore;
+                            }
+                        }
+                        if (e.keyCode === 49) { //up
+                            if (menuval == 0) {
+                                menuval = 1;
+                            }
+                            else {
+                                menuval = 0;
+                            }
+                        }
+
+                    }, false);
+                    context.font = "bold 36px sans-serif";
+                    if (menuval == 0) {
+                        context.fillText("Play Game", 350, 300);
+                    }
+                    else if (menuval == 1) {
+                        context.fillText("HighScore", 350, 300);
+                    }
+
+                    this.updateArray();
+
+                }
+                else if (currentstate == state.HighScore) {
+                    context.font = "bold 36px sans-serif";
+                    context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
+                    context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
+                    context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
+                    context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
+                    context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
+                    window.addEventListener('keypress', function (e) {
+                        if (e.keyCode === 32) { //space
+
+                            currentstate = state.MainMenu;
+                        }
+                    }, false);
+                }
+                else if (currentstate == state.Gameplay) {
+                    if (livesCount == 0) {
+                        if (score > highscorelist[4]) {
+                            var i = 4;
+                            while (score > highscorelist[i] && i > 0) {
+                                i--;
+                            }
+                            if (i == 0) {
+                                highscorelist[4] = highscorelist[3];
+                                highscorelist[3] = highscorelist[2];
+                                highscorelist[2] = highscorelist[1];
+                                highscorelist[1] = highscorelist[0];
+                                highscorelist[i] = score;
+
+                            }
+                            else {
+                                highscorelist[i] = score;
+                            }
+
+                        }
+
+                        currentstate = state.HighScore;
+                    }
+                }
+
             }
         }, false);
 
@@ -491,8 +471,8 @@ function redraw() {
         if (jumping) {
             y -= jumpHeight;
         }
-=======
->>>>>>> d1454f33e1d5eec3e97c1f2814c4e25ef988c8cd
+    }
+
     x = charX;
     y = charY;
     var jumpHeight = 100;
@@ -523,7 +503,7 @@ function redraw() {
     if (jumping) {
         drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
     }
->>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
+
 
         //Left arm
         if (jumping) {
@@ -533,7 +513,6 @@ function redraw() {
             context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
         }
 
-<<<<<<< HEAD
         //Legs
         if (jumping) {
             context.drawImage(images["legs-jump"], x - 6, y);
@@ -574,7 +553,7 @@ function redraw() {
 
         score += 1;
     }
-=======
+
     //Left arm
     if (jumping) {
         context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
@@ -683,7 +662,6 @@ function redraw() {
     context.stroke();
 
     score += 1;
->>>>>>> bba3812afbf394af504c06499a49a95da5e388f1
    
 }
 
