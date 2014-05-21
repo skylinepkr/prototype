@@ -392,17 +392,10 @@ function redraw() {
     context.fillText(":" + livesCount, 900, 40);
     ++numFramesDrawn;
 
-    //drawEllipse(charX, charY, 20, 20);
-
     clockTick = timer.tick();
     this.fillCocoArray(canvas);
     this.drawCoconuts(canvas);
     this.updateArray();
-
-    context.beginPath();
-    context.moveTo(0, canvas.height - 100);
-    context.lineTo(canvas.width, canvas.height - 100);
-    context.stroke();
 
     score += 1;
    
@@ -532,7 +525,7 @@ function Coconut(x, y) {
  */
 Coconut.prototype.fall = function () {
 
-    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
+    if (this.y < (canvas.height - (120 /*+ images["Coconut"].height*/))) {
         this.y += this.fallSpeed;
 
     } else {
@@ -545,8 +538,7 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
-    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
-        //context.drawImage(images["cocobreak"], this.x, this.y);
+    if (this.y > canvas.height - 170) {   
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
     } else {
