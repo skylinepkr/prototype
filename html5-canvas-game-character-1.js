@@ -40,7 +40,6 @@ var left = false;
 var right = false;
 var leftCount = 0;
 var rightCount = 0;
-var increment = 0;
 var lMoving = true;
 var rMoving = true;
 var x;
@@ -161,59 +160,15 @@ function resourceLoaded() {
  */
 function jump() {
 
-    
-    jumping = true;
-    jumpCount++;
-    if (jumpCount > 3)
-    {
-        livesCount--;
-    }
-    setTimeout(land, 800);
-
     if (!jumping) {
 
         jumping = true;
+        jumpCount++;
+        if (jumpCount > 3) {
+            livesCount--;
+        }
         setTimeout(land, 800);
     }
-
-
-    if (!jumping) {
-        if (livesCount == 0) {
-            jumping = false;
-        }
-        else {
-            jumping = true;
-            jumpCount++;
-            if (jumpCount > 3)
-            {
-                livesCount--;
-                jumpCount = 1;
-            }
-            setTimeout(land, 800);
-        }
-    }
-}
-
-function moveLeft() {
-    if (!left) {
-        left = true;
-    }
-
-}
-
-function moveRight() {
-    if (!right) {
-        right = true;
-    }
-
-}
-
-function stopLeft() {
-    left = false;
-}
-
-function stopRight() {
-    right = false;
 }
 
 
@@ -226,52 +181,7 @@ function land() {
     jumping = false;
 }
 
-function inc(speed)
-{
 
-        if(left) //going left
-        {
-                //0     to   slowdown
-            if (increment >= speed && lMoving) {
-                increment = increment - 2;
-
-            }   
-
-            if (increment < speed || !lMoving)
-            {
-               
-               lMoving = false;
-               increment = increment + 1;
-
-               if (increment >= 0) {
-                   increment = 0;
-                   lMoving = true;
-                   stopLeft();
-               }
-            }
-        }
-        else { //going right
-
-                //0    to    movefast
-            if (increment <= speed && rMoving) {
-                increment = increment + 2;
-  
-            }
-
-            if(increment > speed || !rMoving) {
-                rMoving = false;
-                increment = increment - 1;
-
-                if (increment <= 0) {
-                    increment = 0;
-                    rightCount = 0;
-                    rMoving = true;
-                    stopRight();
-                    
-                }
-            }
-        }
-}
 
 /*
  * Draws the background as a horizontal scroller.
@@ -294,37 +204,112 @@ function drawBackground() { //2768x600 is the dimensions of background
  * and also is used as a listener.
  */
 function redraw() {
+    if (currentstate == state.MainMenu) {
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        score = 0;
+        livesCount = 3;
+        jumpCount = 0;
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+                if (menuval == 0) {
+                    currentstate = state.Gameplay;
+                }
+                else {
+                    currentstate = state.HighScore;
+                }
+            }
+            if (e.keyCode === 49) { //up
+                if (menuval == 0) {
+                    menuval = 1;
+                }
+                else {
+                    menuval = 0;
+                }
+            }
 
-    x = charX;
-    y = charY;
-    var jumpHeight = 100;
-    var slowdown = -200;
-    var movefast = 500;
-    var count = 0;
-				
-    canvas.width = canvas.width; // clears the canvas 
-    drawBackground(); //draw background
-
-    //Handle keyboard controls
-    window.addEventListener('keydown', function (e) {
-  
-        if (e.keyCode === 32) { //space
-            jump();
+        }, false);
+        context.font = "bold 36px sans-serif";
+        if (menuval == 0) {
+            context.fillText("Play Game", 350, 300);
         }
-
-        if (e.keyCode === 37) { //left
-            moveLeft();
+        else if (menuval ==1) {
+            context.fillText("HighScore", 350, 300);
         }
-        if (e.keyCode === 39) { //right
-            moveRight();
-        }
-     
-    }, false);
+       
+        this.updateArray();
 
-    //draw shadow
-    if (jumping) {
-        drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
     }
+    else if(currentstate == state.HighScore)
+    {
+        context.font = "bold 36px sans-serif";
+        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
+        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
+        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
+        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
+        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+
+                currentstate = state.MainMenu;
+            }
+        }, false);
+    }
+    else if (currentstate == state.Gameplay) {
+        if (livesCount == 0) {
+            if (score > highscorelist[4]) {
+                var i = 4;
+                while (score > highscorelist[i] && i > 0) {
+                    i--;
+                }
+                if (i == 0) {
+                    highscorelist[4] = highscorelist[3];
+                    highscorelist[3] = highscorelist[2];
+                    highscorelist[2] = highscorelist[1];
+                    highscorelist[1] = highscorelist[0];
+                    highscorelist[i] = score;
+
+                }
+                else {
+                    highscorelist[i] = score;
+                }
+
+            }
+
+            currentstate = state.HighScore;
+        }
+        x = charX;
+        y = charY;
+        var jumpHeight = 100;
+        var count = 0;
+
+        canvas.width = canvas.width; // clears the canvas 
+        drawBackground(); //draw background
+
+        //Handle keyboard controls
+        window.addEventListener('keydown', function (e) {
+
+            if (e.keyCode === 32) { //space
+                jump();
+            }
+
+            if (e.keyCode === 37) { //left
+
+            }
+            if (e.keyCode === 39) { //right
+
+            }
+
+        }, false);
+
+        //draw shadow
+        if (jumping) {
+            drawEllipse(x + 40, y + 29, 100 - breathAmt, 4)
+        }
+
+        if (jumping) {
+            y -= jumpHeight;
+        }
 
 
         //Left arm
@@ -374,117 +359,73 @@ function redraw() {
         this.updateArray();
 
         score += 1;
-  
-
-    //Left arm
-    if (jumping) {
-        context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
-    }
-    else if (left || right) {
-         if (left)
-         {
-            inc(slowdown);
-         }
-         else {
-            inc(movefast);
-         }
-
-        context.drawImage(images["leftArm"], increment + x + 40, y - 42 - breathAmt);
-    }
-    else {
-        context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
-    }
-
-    //Legs
-    if (jumping) {
-        context.drawImage(images["legs-jump"], x + increment - 6, y);
-    }
-    else if (left || right) {
-         if (left) {
-             inc(slowdown);
-         }
-         else {
-             inc(movefast);
-         }
-
-        context.drawImage(images["legs"], increment + x, y);
-    }
-    else {
-        context.drawImage(images["legs"], x, y);
-    }
 
 
-    //torso, head, hair
+        //Left arm
+        if (jumping) {
+            context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        }
 
-    if(left){
-        inc(slowdown);
+        else {
+            context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
+        }
 
-        context.drawImage(images["torso"], x + increment, y - 50);
-        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
-        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
-        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+        //Legs
+        if (jumping) {
+            context.drawImage(images["legs-jump"], x - 6, y);
+        }
 
-    }
-    else if(right){
-        inc(movefast);
+        else {
+            context.drawImage(images["legs"], x, y);
+        }
 
-        context.drawImage(images["torso"], x + increment, y - 50);
-        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
-        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
-        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
-    }
-    else {
+        //torso, head, hair
+
+
+
+
         context.drawImage(images["torso"], x, y - 50);
         context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
         context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
         drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
+
+
+        //Right Arm
+        if (jumping) {
+            context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        }
+
+        else {
+            context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
+        }
+
+
+        context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
+        context.drawImage(images["lives"], 800, 5);
+        context.drawImage(images["score"], 800, 550);
+
+
+        context.font = "bold 36px sans-serif";
+        context.fillText(":" + score, 900, 585);
+        context.fillText(":" + livesCount, 900, 40);
+        ++numFramesDrawn;
+
+        //drawEllipse(charX, charY, 20, 20);
+
+        clockTick = timer.tick();
+        this.fillCocoArray(canvas);
+        this.drawCoconuts(canvas);
+        this.updateArray();
+
+        context.beginPath();
+        context.moveTo(0, canvas.height - 100);
+        context.lineTo(canvas.width, canvas.height - 100);
+        context.stroke();
+
+        score += 1;
     }
-
-    //Right Arm
-    if (jumping) {
-        context.drawImage(images["rightArm-jump"], x + increment - 35, y - 42 - breathAmt);
-    }
-    else if (left || right) { 
-         if (left) {
-             inc(slowdown);
-         }
-         else {
-             inc(movefast);
-         } 
-
-        context.drawImage(images["rightArm"], increment + x - 15, y - 42 - breathAmt);
-    }
-    else {
-        context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
-    }
-
-    
-    context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
-    context.drawImage(images["lives"], 800, 5);
-    context.drawImage(images["score"], 800, 550);
-
-  
-    context.font = "bold 36px sans-serif";
-    context.fillText(":" + score, 900, 585);
-    context.fillText(":" + livesCount, 900, 40);
-    ++numFramesDrawn;
-
-    //drawEllipse(charX, charY, 20, 20);
-
-    clockTick = timer.tick();
-    this.fillCocoArray(canvas);
-    this.drawCoconuts(canvas);
-    this.updateArray();
-
-    context.beginPath();
-    context.moveTo(0, canvas.height - 100);
-    context.lineTo(canvas.width, canvas.height - 100);
-    context.stroke();
-
-    score += 1;
-   
 }
 
 /*
