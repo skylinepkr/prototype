@@ -49,8 +49,42 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
+<<<<<<< HEAD
 var numCoconuts = 6;
 
+=======
+var highscorelist = [0,0,0,0,0];
+var numCoconuts = 2;
+var menuval = 0;
+var state = {
+  MainMenu : {value: 0, name: "MainMenu"}, 
+  Gameplay: {value: 1, name: "Gameplay"}, 
+  Pause : {value: 2, name: "Pause"},
+  HighScore: {value: 3, name: "HighScore"}
+};
+
+var menu = {
+    Play: { value: 0, name: "MainMenu" },
+    HighScore: { value: 1, name: "Gameplay" }
+};
+var currentstate = state.MainMenu;
+
+
+var state = {
+    MainMenu: { value: 0, name: "MainMenu" },
+    Gameplay: { value: 1, name: "Gameplay" },
+    Pause: { value: 2, name: "Pause" },
+    HighScore: { value: 3, name: "HighScore" }
+};
+
+var menu = {
+    Play: { value: 0, name: "MainMenu" },
+    HighScore: { value: 1, name: "Gameplay" }
+};
+var currentstate = state.MainMenu;
+var menuval = 0;
+var highscorelist = [0, 0, 0, 0, 0];
+>>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
 var timer = new Timer();
 var clockTick = null;
 
@@ -292,6 +326,7 @@ function redraw() {
     drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
 
+<<<<<<< HEAD
     //Right Arm
     if (jumping) {
         context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
@@ -299,6 +334,18 @@ function redraw() {
     else {
         context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
     }
+=======
+    clockTick = timer.tick();
+    this.fillCocoArray(canvas);
+    this.drawCoconuts(canvas);
+    this.updateArray();
+
+    score += 1;
+
+        context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
+        context.drawImage(images["lives"], 800, 5);
+        context.drawImage(images["score"], 800, 550);
+>>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
 
     if (left)
     
@@ -453,7 +500,7 @@ function Coconut(x, y) {
  */
 Coconut.prototype.fall = function () {
 
-    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
+    if (this.y < (canvas.height - (120 /*+ images["Coconut"].height*/))) {
         this.y += this.fallSpeed;
 
     } else {
@@ -466,8 +513,12 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
+<<<<<<< HEAD
     if (this.y > canvas.height - 100) {   //+ images["Coconut"].height)
         //context.drawImage(images["cocobreak"], this.x, this.y);
+=======
+    if (this.y > canvas.height - 170) {   
+>>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
     } else {
