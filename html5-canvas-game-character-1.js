@@ -24,7 +24,7 @@ var charY = 473; //185
 var breathInc = 0.1;
 var breathDir = 1;
 var breathAmt = 0;
-var breathMax = 2;
+var breathMax = 3;
 var breathInterval = setInterval(updateBreath, 1000 / fps);
 var maxEyeHeight = 6;
 var curEyeHeight = maxEyeHeight;
@@ -40,7 +40,6 @@ var left = false;
 var right = false;
 var leftCount = 0;
 var rightCount = 0;
-var increment = 0;
 var lMoving = true;
 var rMoving = true;
 var x;
@@ -49,12 +48,8 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
-
-var numCoconuts = 6;
-
-
 var highscorelist = [0,0,0,0,0];
-var numCoconuts = 2;
+var numCoconuts = 6;
 var menuval = 0;
 var state = {
   MainMenu : {value: 0, name: "MainMenu"}, 
@@ -84,7 +79,6 @@ var menu = {
 var currentstate = state.MainMenu;
 var menuval = 0;
 var highscorelist = [0, 0, 0, 0, 0];
-
 var timer = new Timer();
 var clockTick = null;
 
@@ -165,50 +159,16 @@ function resourceLoaded() {
  * Sets the jump flag to true allowing character to perform appropriate task.
  */
 function jump() {
+
     if (!jumping) {
+
         jumping = true;
+        jumpCount++;
+        if (jumpCount > 3) {
+            livesCount--;
+        }
         setTimeout(land, 800);
     }
-
-
-    if (!jumping) {
-        if (livesCount == 0) {
-            jumping = false;
-        }
-        else {
-            jumping = true;
-            jumpCount++;
-            if (jumpCount > 7)
-            {
-                livesCount--;
-                jumpCount = 1;
-            }
-            setTimeout(land, 800);
-        }
-    }
-}
-
-
-function moveLeft() {
-    if (!left) {
-        left = true;
-    }
-
-}
-
-function moveRight() {
-    if (!right) {
-        right = true;
-    }
-
-}
-
-function stopLeft() {
-    left = false;
-}
-
-function stopRight() {
-    right = false;
 }
 
 
@@ -220,6 +180,7 @@ function stopRight() {
 function land() {
     jumping = false;
 }
+
 
 
 /*
@@ -238,144 +199,233 @@ function drawBackground() { //2768x600 is the dimensions of background
     bgX2 -= backgroundSpeed;
 }
 
-
 /*
  * Essentially this is the game loop which re-draws all objects
  * and also is used as a listener.
  */
 function redraw() {
+    if (currentstate == state.MainMenu) {
+        canvas.width = canvas.width; // clears the canvas 
+        context.drawImage(images["background"], 0, 0); //draws background
+        score = 0;
+        livesCount = 3;
+        jumpCount = 0;
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
+                if (menuval == 0) {
+                    currentstate = state.Gameplay;
+                }
+                else {
+                    currentstate = state.HighScore;
+                }
+            }
+            if (e.keyCode === 49) { //up
+                if (menuval == 0) {
+                    menuval = 1;
+                }
+                else {
+                    menuval = 0;
+                }
+            }
 
-    x = charX;
-    y = charY;
-    var jumpHeight = 100;
-    var slowdown = -200;
-    var movefast = 500;
-    var count = 0;
-				
-    canvas.width = canvas.width; // clears the canvas 
-    drawBackground(); //draw background
-
-    //Handle keyboard controls
-    window.addEventListener('keydown', function (e) {
-  
-        if (e.keyCode === 32) { //space
-            jump();
+        }, false);
+        context.font = "bold 36px sans-serif";
+        if (menuval == 0) {
+            context.fillText("Play Game", 350, 300);
         }
-
-        if (e.keyCode === 37) { //left
-            moveLeft();
+        else if (menuval ==1) {
+            context.fillText("HighScore", 350, 300);
         }
-        if (e.keyCode === 39) { //right
-            moveRight();
-        }
-     
-    }, false);
+       
+        this.updateArray();
 
-    //go left
-    if(left)
+    }
+    else if(currentstate == state.HighScore)
     {
-        if(!(x < 0))
-        x = x - 10;
-        charX = x;
-        stopLeft();
-    }
+        context.font = "bold 36px sans-serif";
+        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
+        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
+        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
+        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
+        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
+        window.addEventListener('keypress', function (e) {
+            if (e.keyCode === 32) { //space
 
-    //go right
-    if (right) {
-        if(!(x > 910))
-        {   x = x + 8;
-            charX = x;
-            stopRight();
+                currentstate = state.MainMenu;
+            }
+        }, false);
+    }
+    else if (currentstate == state.Gameplay) {
+        if (livesCount == 0) {
+            if (score > highscorelist[4]) {
+                var i = 4;
+                while (score > highscorelist[i] && i > 0) {
+                    i--;
+                }
+                if (i == 0) {
+                    highscorelist[4] = highscorelist[3];
+                    highscorelist[3] = highscorelist[2];
+                    highscorelist[2] = highscorelist[1];
+                    highscorelist[1] = highscorelist[0];
+                    highscorelist[i] = score;
+
+                }
+                else {
+                    highscorelist[i] = score;
+                }
+
+            }
+
+            currentstate = state.HighScore;
         }
-     
-    }
-   
-    //gradually go left as time passes
-    if (!(x < 0)){
-        x = x - 2;
-        charX = x;
-    }
-      
+        x = charX;
+        y = charY;
+        var jumpHeight = 100;
+        var count = 0;
 
-    //draw shadow
-    if (jumping) {
-        drawEllipse(x + 40, y+29,100-breathAmt, 4)
-    }
+        canvas.width = canvas.width; // clears the canvas 
+        drawBackground(); //draw background
 
-    if (jumping) {
-        y -= jumpHeight;
-    }
+        //Handle keyboard controls
+        window.addEventListener('keydown', function (e) {
 
-    //Left arm
-    if (jumping) {
-        context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
-    }
-    else {
-        context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
-    }
+            if (e.keyCode === 32) { //space
+                jump();
+            }
 
-    //Legs
-    if (jumping) {
-        context.drawImage(images["legs-jump"], x - 6, y);
-    }
-    else {
-        context.drawImage(images["legs"], x, y);
-    }
+            if (e.keyCode === 37) { //left
 
-    context.drawImage(images["torso"], x, y - 50);
-    context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
-    context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
-    drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+            }
+            if (e.keyCode === 39) { //right
+
+            }
+
+        }, false);
+
+        //draw shadow
+        if (jumping) {
+            drawEllipse(x + 40, y + 29, 100 - breathAmt, 4)
+        }
+
+        if (jumping) {
+            y -= jumpHeight;
+        }
 
 
+        //Left arm
+        if (jumping) {
+            context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        }
+        else {
+            context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
+        }
 
-    //Right Arm
-    if (jumping) {
-        context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
-    }
-    else {
-        context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
-    }
+        //Legs
+        if (jumping) {
+            context.drawImage(images["legs-jump"], x - 6, y);
+        }
+        else {
+            context.drawImage(images["legs"], x, y);
+        }
 
-    clockTick = timer.tick();
-    this.fillCocoArray(canvas);
-    this.drawCoconuts(canvas);
-    this.updateArray();
+        context.drawImage(images["torso"], x, y - 50);
+        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
 
-    score += 1;
+        //Right Arm
+        if (jumping) {
+            context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        }
+        else {
+            context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
+        }
+
 
         context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
         context.drawImage(images["lives"], 800, 5);
         context.drawImage(images["score"], 800, 550);
 
 
-    if (left)
-    
-    
-    context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
-    context.drawImage(images["lives"], 800, 5);
-    context.drawImage(images["score"], 800, 550);
+        //drawEllipse(x + 47, y - 68 - breathAmt, 8, curEyeHeight); // Left Eye
+        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
-  
-    context.font = "bold 36px sans-serif";
-    context.fillText(":" + score, 900, 585);
-    context.fillText(":" + livesCount, 900, 40);
-    ++numFramesDrawn;
+        context.font = "bold 36px sans-serif";
+        context.fillText(":" + score, 900, 585);
+        context.fillText(":" + livesCount, 900, 40);
+        ++numFramesDrawn;
 
-    //drawEllipse(charX, charY, 20, 20);
+        this.fillCocoArray(canvas);
+        this.drawCoconuts(canvas);
+        this.updateArray();
 
-    clockTick = timer.tick();
-    this.fillCocoArray(canvas);
-    this.drawCoconuts(canvas);
-    this.updateArray();
+        score += 1;
 
-    context.beginPath();
-    context.moveTo(0, canvas.height - 100);
-    context.lineTo(canvas.width, canvas.height - 100);
-    context.stroke();
 
-    score += 1;
-   
+        //Left arm
+        if (jumping) {
+            context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+        }
+
+        else {
+            context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
+        }
+
+        //Legs
+        if (jumping) {
+            context.drawImage(images["legs-jump"], x - 6, y);
+        }
+
+        else {
+            context.drawImage(images["legs"], x, y);
+        }
+
+
+        //torso, head, hair
+
+
+
+
+        context.drawImage(images["torso"], x, y - 50);
+        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
+
+
+
+        //Right Arm
+        if (jumping) {
+            context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
+        }
+
+        else {
+            context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
+        }
+
+
+        context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
+        context.drawImage(images["lives"], 800, 5);
+        context.drawImage(images["score"], 800, 550);
+
+
+        context.font = "bold 36px sans-serif";
+        context.fillText(":" + score, 900, 585);
+        context.fillText(":" + livesCount, 900, 40);
+        ++numFramesDrawn;
+
+        //drawEllipse(charX, charY, 20, 20);
+
+        clockTick = timer.tick();
+        this.fillCocoArray(canvas);
+        this.drawCoconuts(canvas);
+        this.updateArray();
+
+        context.beginPath();
+        context.moveTo(0, canvas.height - 100);
+        context.lineTo(canvas.width, canvas.height - 100);
+        context.stroke();
+
+        score += 1;
+    }
 }
 
 /*
@@ -437,7 +487,7 @@ function updateBlink() {
  */
 function blink() {
 
-  curEyeHeight -= 1;
+  curEyeHeight -= .4;
   if (curEyeHeight <= 0) {
 	eyeOpenTime = 0;
 	curEyeHeight = maxEyeHeight;
@@ -492,7 +542,7 @@ function Coconut(x, y) {
     this.y = y;
     this.removeFromWorld = false;
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
-    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 65, 0.02, 6, true, false);
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
     
 
 }
@@ -502,7 +552,7 @@ function Coconut(x, y) {
  */
 Coconut.prototype.fall = function () {
 
-    if (this.y < (canvas.height - (120 /*+ images["Coconut"].height*/))) {
+    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
         this.y += this.fallSpeed;
 
     } else {
@@ -515,89 +565,83 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
-
-    if (this.y > canvas.height - 100) {   //+ images["Coconut"].height)
+    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
         //context.drawImage(images["cocobreak"], this.x, this.y);
+        this.animation.drawFrame(clockTick, context, this.x, this.y);
 
-        if (this.y > canvas.height - 170) {
-
-            this.animation.drawFrame(clockTick, context, this.x, this.y);
-
-        } else {
-            context.drawImage(images["Coconut"], this.x, this.y);
-
-        }
-
-    }
-
-    function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
-        this.spriteSheet = spriteSheet;
-        this.startX = startX;
-        this.startY = startY;
-        this.frameWidth = frameWidth;
-        this.frameDuration = frameDuration;
-        this.frameHeight = frameHeight;
-        this.frames = frames;
-        this.totalTime = frameDuration * frames;
-        this.elapsedTime = 0;
-        this.loop = loop;
-        this.reverse = reverse;
-    }
-
-    Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
-        var scaleBy = scaleBy || 1;
-        this.elapsedTime += tick;
-        if (this.loop) {
-            if (this.isDone()) {
-                this.elapsedTime = 0;
-            }
-        } else if (this.isDone()) {
-            return;
-        }
-        var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
-        var vindex = 0;
-        if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
-            index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
-            vindex++;
-        }
-        while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
-            index -= Math.floor(this.spriteSheet.width / this.frameWidth);
-            vindex++;
-        }
-
-        var locX = x;
-        var locY = y;
-        var offset = vindex === 0 ? this.startX : 0;
-        ctx.drawImage(this.spriteSheet,
-                      index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
-                      this.frameWidth, this.frameHeight,
-                      locX, locY,
-                      this.frameWidth * scaleBy,
-                      this.frameHeight * scaleBy);
-    }
-
-    Animation.prototype.currentFrame = function () {
-        return Math.floor(this.elapsedTime / this.frameDuration);
-    }
-
-    Animation.prototype.isDone = function () {
-        return (this.elapsedTime >= this.totalTime);
-    }
-
-    function Timer() {
-        this.gameTime = 0;
-        this.maxStep = 0.05;
-        this.wallLastTimestamp = 0;
+    } else {
+        context.drawImage(images["Coconut"], this.x, this.y);
+        
     }
     
+}
 
-        Timer.prototype.tick = function () {
-            var wallCurrent = Date.now();
-            var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-            this.wallLastTimestamp = wallCurrent;
+function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+    this.spriteSheet = spriteSheet;
+    this.startX = startX;
+    this.startY = startY;
+    this.frameWidth = frameWidth;
+    this.frameDuration = frameDuration;
+    this.frameHeight = frameHeight;
+    this.frames = frames;
+    this.totalTime = frameDuration * frames;
+    this.elapsedTime = 0;
+    this.loop = loop;
+    this.reverse = reverse;
+}
 
-            var gameDelta = Math.min(wallDelta, this.maxStep);
-            this.gameTime += gameDelta;
-            return gameDelta;
+Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+    var scaleBy = scaleBy || 1;
+    this.elapsedTime += tick;
+    if (this.loop) {
+        if (this.isDone()) {
+            this.elapsedTime = 0;
         }
-   
+    } else if (this.isDone()) {
+        return;
+    }
+    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+    var vindex = 0;
+    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+        vindex++;
+    }
+    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+        vindex++;
+    }
+
+    var locX = x;
+    var locY = y;
+    var offset = vindex === 0 ? this.startX : 0;
+    ctx.drawImage(this.spriteSheet,
+                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                  this.frameWidth, this.frameHeight,
+                  locX, locY,
+                  this.frameWidth * scaleBy,
+                  this.frameHeight * scaleBy);
+}
+
+Animation.prototype.currentFrame = function () {
+    return Math.floor(this.elapsedTime / this.frameDuration);
+}
+
+Animation.prototype.isDone = function () {
+    return (this.elapsedTime >= this.totalTime);
+}
+
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function () {
+    var wallCurrent = Date.now();
+    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+    this.wallLastTimestamp = wallCurrent;
+
+    var gameDelta = Math.min(wallDelta, this.maxStep);
+    this.gameTime += gameDelta;
+    return gameDelta;
+}
