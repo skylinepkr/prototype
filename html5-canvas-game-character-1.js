@@ -49,10 +49,10 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
-<<<<<<< HEAD
+
 var numCoconuts = 6;
 
-=======
+
 var highscorelist = [0,0,0,0,0];
 var numCoconuts = 2;
 var menuval = 0;
@@ -84,7 +84,7 @@ var menu = {
 var currentstate = state.MainMenu;
 var menuval = 0;
 var highscorelist = [0, 0, 0, 0, 0];
->>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
+
 var timer = new Timer();
 var clockTick = null;
 
@@ -271,6 +271,7 @@ function redraw() {
      
     }, false);
 
+    //go left
     if(left)
     {
         if(!(x < 0))
@@ -279,6 +280,7 @@ function redraw() {
         stopLeft();
     }
 
+    //go right
     if (right) {
         if(!(x > 910))
         {   x = x + 8;
@@ -288,8 +290,8 @@ function redraw() {
      
     }
    
-    if (!(x < 0))
-    {
+    //gradually go left as time passes
+    if (!(x < 0)){
         x = x - 2;
         charX = x;
     }
@@ -326,7 +328,7 @@ function redraw() {
     drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
 
-<<<<<<< HEAD
+
     //Right Arm
     if (jumping) {
         context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
@@ -334,7 +336,7 @@ function redraw() {
     else {
         context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
     }
-=======
+
     clockTick = timer.tick();
     this.fillCocoArray(canvas);
     this.drawCoconuts(canvas);
@@ -345,7 +347,7 @@ function redraw() {
         context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
         context.drawImage(images["lives"], 800, 5);
         context.drawImage(images["score"], 800, 550);
->>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
+
 
     if (left)
     
@@ -513,87 +515,89 @@ Coconut.prototype.fall = function () {
  *Draws a coconut
  */
 Coconut.prototype.draw = function () {
-<<<<<<< HEAD
+
     if (this.y > canvas.height - 100) {   //+ images["Coconut"].height)
         //context.drawImage(images["cocobreak"], this.x, this.y);
-=======
-    if (this.y > canvas.height - 170) {   
->>>>>>> 4b46df8ef40f0fda53551f3fdb1253cfca8fdb5e
-        this.animation.drawFrame(clockTick, context, this.x, this.y);
 
-    } else {
-        context.drawImage(images["Coconut"], this.x, this.y);
-        
+        if (this.y > canvas.height - 170) {
+
+            this.animation.drawFrame(clockTick, context, this.x, this.y);
+
+        } else {
+            context.drawImage(images["Coconut"], this.x, this.y);
+
+        }
+
+    }
+
+    function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+        this.spriteSheet = spriteSheet;
+        this.startX = startX;
+        this.startY = startY;
+        this.frameWidth = frameWidth;
+        this.frameDuration = frameDuration;
+        this.frameHeight = frameHeight;
+        this.frames = frames;
+        this.totalTime = frameDuration * frames;
+        this.elapsedTime = 0;
+        this.loop = loop;
+        this.reverse = reverse;
+    }
+
+    Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+        var scaleBy = scaleBy || 1;
+        this.elapsedTime += tick;
+        if (this.loop) {
+            if (this.isDone()) {
+                this.elapsedTime = 0;
+            }
+        } else if (this.isDone()) {
+            return;
+        }
+        var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+        var vindex = 0;
+        if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+            index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+            vindex++;
+        }
+        while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+            index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+            vindex++;
+        }
+
+        var locX = x;
+        var locY = y;
+        var offset = vindex === 0 ? this.startX : 0;
+        ctx.drawImage(this.spriteSheet,
+                      index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                      this.frameWidth, this.frameHeight,
+                      locX, locY,
+                      this.frameWidth * scaleBy,
+                      this.frameHeight * scaleBy);
+    }
+
+    Animation.prototype.currentFrame = function () {
+        return Math.floor(this.elapsedTime / this.frameDuration);
+    }
+
+    Animation.prototype.isDone = function () {
+        return (this.elapsedTime >= this.totalTime);
+    }
+
+    function Timer() {
+        this.gameTime = 0;
+        this.maxStep = 0.05;
+        this.wallLastTimestamp = 0;
     }
     
-}
 
-function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
-    this.spriteSheet = spriteSheet;
-    this.startX = startX;
-    this.startY = startY;
-    this.frameWidth = frameWidth;
-    this.frameDuration = frameDuration;
-    this.frameHeight = frameHeight;
-    this.frames = frames;
-    this.totalTime = frameDuration * frames;
-    this.elapsedTime = 0;
-    this.loop = loop;
-    this.reverse = reverse;
-}
+        Timer.prototype.tick = function () {
+            var wallCurrent = Date.now();
+            var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+            this.wallLastTimestamp = wallCurrent;
 
-Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
-    var scaleBy = scaleBy || 1;
-    this.elapsedTime += tick;
-    if (this.loop) {
-        if (this.isDone()) {
-            this.elapsedTime = 0;
+            var gameDelta = Math.min(wallDelta, this.maxStep);
+            this.gameTime += gameDelta;
+            return gameDelta;
         }
-    } else if (this.isDone()) {
-        return;
-    }
-    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
-    var vindex = 0;
-    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
-        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
-        vindex++;
-    }
-    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
-        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
-        vindex++;
-    }
-
-    var locX = x;
-    var locY = y;
-    var offset = vindex === 0 ? this.startX : 0;
-    ctx.drawImage(this.spriteSheet,
-                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
-                  this.frameWidth, this.frameHeight,
-                  locX, locY,
-                  this.frameWidth * scaleBy,
-                  this.frameHeight * scaleBy);
-}
-
-Animation.prototype.currentFrame = function () {
-    return Math.floor(this.elapsedTime / this.frameDuration);
-}
-
-Animation.prototype.isDone = function () {
-    return (this.elapsedTime >= this.totalTime);
-}
-
-function Timer() {
-    this.gameTime = 0;
-    this.maxStep = 0.05;
-    this.wallLastTimestamp = 0;
-}
-
-Timer.prototype.tick = function () {
-    var wallCurrent = Date.now();
-    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-    this.wallLastTimestamp = wallCurrent;
-
-    var gameDelta = Math.min(wallDelta, this.maxStep);
-    this.gameTime += gameDelta;
-    return gameDelta;
-}
+   
