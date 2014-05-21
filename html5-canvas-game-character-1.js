@@ -178,8 +178,6 @@ function stopRight() {
 }
 
 
-
-
 /*
  * Controls the jump flag when character lands
  * setting jump to false.
@@ -187,61 +185,6 @@ function stopRight() {
 
 function land() {
     jumping = false;
-}
-
-
-function inc(speed)
-{
-
-        if(left) //going left
-        {
-                //0     to   slowdown
-            if (increment >= speed && lMoving) {
-                increment = increment - 2;
-
-            }   
-
-            if (increment < speed || !lMoving)
-            {
-               
-               lMoving = false;
-               increment = increment + 1;
-
-               if (increment >= 0) {
-                   increment = 0;
-                   lMoving = true;
-                   stopLeft();
-
-               }
-
-            }
-
-           
-        }
-        else { //going right
-
-                //0    to    movefast
-            if (increment <= speed && rMoving) {
-                increment = increment + 2;
-  
-            }
-
-            if(increment > speed || !rMoving) {
-                rMoving = false;
-                increment = increment - 1;
-
-                if (increment <= 0) {
-                    increment = 0;
-                    rightCount = 0;
-                    rMoving = true;
-                    stopRight();
-                    
-                }
-
-            }
-
-        }
-
 }
 
 
@@ -294,9 +237,33 @@ function redraw() {
      
     }, false);
 
+    if(left)
+    {
+        if(!(x < 0))
+        x = x - 10;
+        charX = x;
+        stopLeft();
+    }
+
+    if (right) {
+        if(!(x > 910))
+        {   x = x + 8;
+            charX = x;
+            stopRight();
+        }
+     
+    }
+   
+    if (!(x < 0))
+    {
+        x = x - 2;
+        charX = x;
+    }
+      
+
     //draw shadow
     if (jumping) {
-        drawEllipse(x + increment + 40, y+29,100-breathAmt, 4)
+        drawEllipse(x + 40, y+29,100-breathAmt, 4)
     }
 
     if (jumping) {
@@ -305,88 +272,36 @@ function redraw() {
 
     //Left arm
     if (jumping) {
-        context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
+        context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
     }
-    /*else if (left || right) {
-         if (left)
-         {
-            inc(slowdown);
-         }
-         else {
-            inc(movefast);
-         }
-
-        context.drawImage(images["leftArm"], increment + x + 40, y - 42 - breathAmt);
-    }*/
     else {
         context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
     }
 
     //Legs
     if (jumping) {
-        context.drawImage(images["legs-jump"], x + increment - 6, y);
+        context.drawImage(images["legs-jump"], x - 6, y);
     }
-    /*else if (left || right) {
-         if (left) {
-             inc(slowdown);
-         }
-         else {
-             inc(movefast);
-         }
-
-        context.drawImage(images["legs"], increment + x, y);
-    }*/
     else {
         context.drawImage(images["legs"], x, y);
     }
 
+    context.drawImage(images["torso"], x, y - 50);
+    context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
+    context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
+    drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
 
-    //torso, head, hair
-
-    if(left){
-        inc(slowdown);
-
-        context.drawImage(images["torso"], x + increment, y - 50);
-        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
-        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
-        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
-
-    }
-    else if(right){
-        inc(movefast);
-
-        context.drawImage(images["torso"], x + increment, y - 50);
-        context.drawImage(images["head"], x + increment - 10, y - 125 - breathAmt);
-        context.drawImage(images["hair"], x + increment - 37, y - 138 - breathAmt);
-        drawEllipse(x + increment + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
-
-    }
-    else {
-        context.drawImage(images["torso"], x, y - 50);
-        context.drawImage(images["head"], x - 10, y - 125 - breathAmt);
-        context.drawImage(images["hair"], x - 37, y - 138 - breathAmt);
-        drawEllipse(x + 64, y - 64 - breathAmt, 8, curEyeHeight); // Right Eye
-
-    }
 
     //Right Arm
     if (jumping) {
-        context.drawImage(images["rightArm-jump"], x + increment - 35, y - 42 - breathAmt);
-    }
-    else if (left || right) { 
-         if (left) {
-             inc(slowdown);
-         }
-         else {
-             inc(movefast);
-         } 
-
-        context.drawImage(images["rightArm"], increment + x - 15, y - 42 - breathAmt);
+        context.drawImage(images["rightArm-jump"], x - 35, y - 42 - breathAmt);
     }
     else {
         context.drawImage(images["rightArm"], x - 15, y - 42 - breathAmt);
     }
 
+    if (left)
+    
     
     context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
     context.drawImage(images["lives"], 800, 5);
