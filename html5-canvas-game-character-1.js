@@ -478,11 +478,6 @@ function redraw() {
         this.drawCoconuts(canvas);
         this.updateArray();
 
-        context.beginPath();
-        context.moveTo(0, canvas.height - 100);
-        context.lineTo(canvas.width, canvas.height - 100);
-        context.stroke();
-
         score += 1;
     }
 }
