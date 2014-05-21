@@ -154,7 +154,7 @@ function jump() {
     }
 }
 
-<<<<<<< HEAD
+
 function moveLeft() {
     if (!left) {
         left = true;
@@ -179,17 +179,17 @@ function stopRight() {
 
 
 
-=======
+
 /*
  * Controls the jump flag when character lands
  * setting jump to false.
  */
->>>>>>> a303c1eaf47284f88cb338cfe0b2480b384c3cb4
+
 function land() {
     jumping = false;
 }
 
-<<<<<<< HEAD
+
 function inc(speed)
 {
 
@@ -244,7 +244,7 @@ function inc(speed)
 
 }
 
-=======
+
 /*
  * Draws the background as a horizontal scroller.
  */
@@ -260,7 +260,7 @@ function drawBackground() { //2768x600 is the dimensions of background
     bgX -= backgroundSpeed;
     bgX2 -= backgroundSpeed;
 }
->>>>>>> a303c1eaf47284f88cb338cfe0b2480b384c3cb4
+
 
 /*
  * Essentially this is the game loop which re-draws all objects
@@ -307,7 +307,7 @@ function redraw() {
     if (jumping) {
         context.drawImage(images["leftArm-jump"], x + increment + 40, y - 42 - breathAmt);
     }
-    else if (left || right) {
+    /*else if (left || right) {
          if (left)
          {
             inc(slowdown);
@@ -317,7 +317,7 @@ function redraw() {
          }
 
         context.drawImage(images["leftArm"], increment + x + 40, y - 42 - breathAmt);
-    }
+    }*/
     else {
         context.drawImage(images["leftArm"], x + 40, y - 42 - breathAmt);
     }
@@ -326,7 +326,7 @@ function redraw() {
     if (jumping) {
         context.drawImage(images["legs-jump"], x + increment - 6, y);
     }
-    else if (left || right) {
+    /*else if (left || right) {
          if (left) {
              inc(slowdown);
          }
@@ -335,7 +335,7 @@ function redraw() {
          }
 
         context.drawImage(images["legs"], increment + x, y);
-    }
+    }*/
     else {
         context.drawImage(images["legs"], x, y);
     }
