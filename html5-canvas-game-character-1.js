@@ -191,6 +191,7 @@ function jump() {
             }
             setTimeout(land, 800);
         }
+    }
 }
 
 function moveLeft() {
@@ -293,185 +294,6 @@ function drawBackground() { //2768x600 is the dimensions of background
  * and also is used as a listener.
  */
 function redraw() {
-    if (currentstate == state.MainMenu) {
-        canvas.width = canvas.width; // clears the canvas 
-        context.drawImage(images["background"], 0, 0); //draws background
-        score = 0;
-        livesCount = 3;
-        jumpCount = 0;
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32) { //space
-                if (menuval == 0) {
-                    currentstate = state.Gameplay;
-                }
-                else {
-                    currentstate = state.HighScore;
-                }
-            }
-            if (e.keyCode === 49) { //up
-                if (menuval == 0) {
-                    menuval = 1;
-                }
-                else {
-                    menuval = 0;
-                }
-            }
-
-        }, false);
-        context.font = "bold 36px sans-serif";
-        if (menuval == 0) {
-            context.fillText("Play Game", 350, 300);
-        }
-        else if (menuval ==1) {
-            context.fillText("HighScore", 350, 300);
-        }
-        
-        this.updateArray();
-
-    }
-    else if(currentstate == state.HighScore)
-    {
-        context.font = "bold 36px sans-serif";
-        context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
-        context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
-        context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
-        context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
-        context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32) { //space
-
-                currentstate = state.MainMenu;
-            }
-        }, false);
-    }
-    else if (currentstate == state.Gameplay) {
-        if (livesCount == 0) {
-            if (score > highscorelist[4]) {
-                var i = 4;
-                while (score > highscorelist[i] && i > 0) {
-                    i--;
-                }
-                if (i == 0) {
-                    highscorelist[4] = highscorelist[3];
-                    highscorelist[3] = highscorelist[2];
-                    highscorelist[2] = highscorelist[1];
-                    highscorelist[1] = highscorelist[0];
-                    highscorelist[i] = score;
-
-                }
-                else {
-                    highscorelist[i] = score;
-                }
-
-            }
-
-            currentstate = state.HighScore;
-        }
-        var x = charX;
-        var y = charY;
-        var jumpHeight = 100;
-
-        canvas.width = canvas.width; // clears the canvas 
-        context.drawImage(images["background"], 0, 0); //draws background
-        //drawEllipse(x + 40, y + 29, 160 - breathAmt, 6); // Shadow
-
-        //Handle keyboard controls
-        window.addEventListener('keypress', function (e) {
-            if (e.keyCode === 32 && currentstate == state.Gameplay) { //space
-                jump();
-            }
-            if (e.keyCode === 37) { //left
-
-            }
-            if (e.keyCode === 39) { //right
-
-                if (currentstate == state.MainMenu) {
-                    canvas.width = canvas.width; // clears the canvas 
-                    context.drawImage(images["background"], 0, 0); //draws background
-                    score = 0;
-                    livesCount = 3;
-                    jumpCount = 0;
-                    window.addEventListener('keypress', function (e) {
-                        if (e.keyCode === 32) { //space
-                            if (menuval == 0) {
-                                currentstate = state.Gameplay;
-                            }
-                            else {
-                                currentstate = state.HighScore;
-                            }
-                        }
-                        if (e.keyCode === 49) { //up
-                            if (menuval == 0) {
-                                menuval = 1;
-                            }
-                            else {
-                                menuval = 0;
-                            }
-                        }
-
-                    }, false);
-                    context.font = "bold 36px sans-serif";
-                    if (menuval == 0) {
-                        context.fillText("Play Game", 350, 300);
-                    }
-                    else if (menuval == 1) {
-                        context.fillText("HighScore", 350, 300);
-                    }
-
-                    this.updateArray();
-
-                }
-                else if (currentstate == state.HighScore) {
-                    context.font = "bold 36px sans-serif";
-                    context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
-                    context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
-                    context.fillText("HighScore 3 : " + highscorelist[2], 350, 300);
-                    context.fillText("HighScore 4 : " + highscorelist[3], 350, 400);
-                    context.fillText("HighScore 5 : " + highscorelist[4], 350, 500);
-                    window.addEventListener('keypress', function (e) {
-                        if (e.keyCode === 32) { //space
-
-                            currentstate = state.MainMenu;
-                        }
-                    }, false);
-                }
-                else if (currentstate == state.Gameplay) {
-                    if (livesCount == 0) {
-                        if (score > highscorelist[4]) {
-                            var i = 4;
-                            while (score > highscorelist[i] && i > 0) {
-                                i--;
-                            }
-                            if (i == 0) {
-                                highscorelist[4] = highscorelist[3];
-                                highscorelist[3] = highscorelist[2];
-                                highscorelist[2] = highscorelist[1];
-                                highscorelist[1] = highscorelist[0];
-                                highscorelist[i] = score;
-
-                            }
-                            else {
-                                highscorelist[i] = score;
-                            }
-
-                        }
-
-                        currentstate = state.HighScore;
-                    }
-                }
-
-            }
-        }, false);
-
-        //draw shadow
-        if (jumping) {
-            drawEllipse(x + 40, y + 29, 100 - breathAmt, 4)
-        }
-
-        if (jumping) {
-            y -= jumpHeight;
-        }
-    }
 
     x = charX;
     y = charY;
@@ -552,7 +374,7 @@ function redraw() {
         this.updateArray();
 
         score += 1;
-    }
+  
 
     //Left arm
     if (jumping) {
