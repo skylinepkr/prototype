@@ -171,6 +171,40 @@ function jump() {
     }
 }
 
+/**
+* Sets the going left flag to true if the left arrow is pressed.
+*/
+function moveLeft() {
+    if (!left) {
+        left = true;
+    }
+
+}
+
+/**
+* Sets the going right flag to true if the right arrow is pressed.
+*/
+function moveRight() {
+    if (!right) {
+        right = true;
+    }
+
+}
+
+/**
+* Sets the going left arrow to false.  
+*/
+function stopLeft() {
+    left = false;
+}
+
+/**
+* Sets the going right arrow to false.  
+*/
+function stopRight() {
+    right = false;
+}
+
 
 /*
  * Controls the jump flag when character lands
@@ -294,13 +328,38 @@ function redraw() {
             }
 
             if (e.keyCode === 37) { //left
-
+                moveLeft();
             }
             if (e.keyCode === 39) { //right
-
+                moveRight();
             }
 
         }, false);
+
+
+        //go left
+        if (left) {
+            if (!(x < 0))
+                x = x - 14;
+            charX = x;
+            stopLeft();
+        }
+
+        //go right
+        if (right) {
+            if (!(x > 910)) {
+                x = x + 13;
+                charX = x;
+                stopRight();
+            }
+
+        }
+
+        //gradually go left as time passes
+        if (!(x < 0)) {
+            x = x - 3;
+            charX = x;
+        }
 
         //draw shadow
         if (jumping) {
