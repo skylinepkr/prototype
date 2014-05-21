@@ -49,7 +49,7 @@ var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
 var highscorelist = [0,0,0,0,0];
-var numCoconuts = 6;
+var numCoconuts = 2;
 var menuval = 0;
 var state = {
   MainMenu : {value: 0, name: "MainMenu"}, 
@@ -402,15 +402,13 @@ function redraw() {
         }
 
 
-<<<<<<< HEAD
     clockTick = timer.tick();
     this.fillCocoArray(canvas);
     this.drawCoconuts(canvas);
     this.updateArray();
 
     score += 1;
-   
-=======
+
         context.drawImage(images["title"], 10, 5); //366 for x is centered for title.
         context.drawImage(images["lives"], 800, 5);
         context.drawImage(images["score"], 800, 550);
@@ -435,7 +433,6 @@ function redraw() {
 
         score += 1;
     }
->>>>>>> 8ebe6c4db222794db5fa58a068e911043cb1eadc
 }
 
 /*
