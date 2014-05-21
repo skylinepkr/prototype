@@ -49,7 +49,7 @@ var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
 var highscorelist = [0,0,0,0,0];
-var numCoconuts = 6;
+var numCoconuts = 3;
 var menuval = 0;
 var state = {
   MainMenu : {value: 0, name: "MainMenu"}, 
