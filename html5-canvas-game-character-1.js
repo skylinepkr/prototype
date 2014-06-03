@@ -51,6 +51,8 @@ var cocoArray = [];
 var highscorelist = [0,0,0,0,0];
 var numCoconuts = 6;
 var menuval = 0;
+var numCherries = 1;
+var cherryArray = [];
 var state = {
   MainMenu : {value: 0, name: "MainMenu"}, 
   Gameplay: {value: 1, name: "Gameplay"}, 
@@ -80,6 +82,7 @@ var currentstate = state.MainMenu;
 var menuval = 0;
 var highscorelist = [0, 0, 0, 0, 0];
 var timer = new Timer();
+var ctimer = new Timer();
 var clockTick = null;
 
 var bgX = 0, bgY = 0, bgX2 = 2768;
@@ -164,6 +167,7 @@ function jump() {
 
         jumping = true;
         jumpCount++;
+     
         if (jumpCount > 3) {
             livesCount--;
         }
@@ -355,6 +359,15 @@ function redraw() {
 
         }
 
+       /* if (right && jumping) {
+            if(!(x < 0) && !(x > 910)) {
+                x = x + 13;
+                y = (y*y);
+                stopRight();
+            }
+
+        }*/
+
         //gradually go left as time passes
         if (!(x < 0)) {
             x = x - 3;
@@ -417,6 +430,10 @@ function redraw() {
         this.drawCoconuts(canvas);
         this.updateArray();
 
+        this.fillCherryArray(canvas);
+        this.drawCherries(canvas);
+        this.updateCherryArray();
+
         score += 1;
 
 
@@ -478,10 +495,10 @@ function redraw() {
         this.drawCoconuts(canvas);
         this.updateArray();
 
-        context.beginPath();
-        context.moveTo(0, canvas.height - 100);
-        context.lineTo(canvas.width, canvas.height - 100);
-        context.stroke();
+        clockCTick = ctimer.tick();
+        this.fillCherryArray(canvas);
+        this.drawCherries(canvas);
+        this.updateCherryArray();
 
         score += 1;
     }
@@ -633,6 +650,132 @@ Coconut.prototype.draw = function () {
         
     }
     
+}
+
+
+/*
+ * Draws the cherries in the array
+*/
+function drawCherries(canvas) {
+    for (var i = 0; i < cherryArray.length ; i++) {
+        var cherry = cherryArray[i];
+        cherry.draw(canvas);
+        cherry.appear();
+    }
+
+}
+
+/* 
+* Removes cherries that have fallen on the ground
+*/
+function updateCherryArray() {
+    for (var i = cherryArray.length - 1; i >= 0; --i) {
+            if (cherryArray[i].removeFromCWorld) {
+                cherryArray.splice(i, 1);
+            }
+        }
+   
+    /*if (cocoArray.length === 0) {
+        full = false;
+    }*/
+}
+
+/*
+* Add cherries to the coconut array 
+*/
+function fillCherryArray(canvas) {
+
+    for (var i = 0; i < numCherries - cherryArray.length; i++) {
+        var ranx = Math.floor(Math.random() * canvas.width);
+        cherryArray.push(new Cherry(ranx, 290));
+    }
+    //full = true;
+}
+
+/* 
+ * Contructs a cherry with given x,y coordinates
+*/
+function Cherry(x, y) {
+    this.x = x;
+    this.y = y;
+    this.removeFromCWorld = false;
+    //this.fallSpeed = Math.floor(Math.random() * 5) + 2;
+    this.time = 0;
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
+
+
+} 
+
+/* 
+ * Function that makes cherries appear
+ */
+Cherry.prototype.appear = function () {
+
+        this.time++;
+        if (this.time == 400) {
+            this.removeFromCWorld = true;
+        }
+
+        this.x -= 2;
+
+        if(this.x <= -10)
+        {
+            this.removeFromCWorld = true;
+        }
+
+        if((charX >= this.x && charX <= this.x + 30) && ((charY + 50) <= this.y))
+        {
+            this.removeFromCWorld = true;
+        }
+   // this.tick++;
+
+   
+
+  /*  // setInterval(function () { var o = this.tick }, 1000);
+    var start = new Date().getTime();
+    //elapsed = '0.0';
+
+        window.setInterval(function () {
+        var time = new Date().getTime() - start;
+
+        //elapsed = Math.floor(time / 100) / 10;
+        if (time >= 1000)
+        {
+            this.removeFromCWorld = true;
+           // updateCherryArray();
+            //this.time = 0;
+        }
+
+    }, 100);*/
+
+}
+
+Cherry.prototype.tick = function () {
+
+    if (this.time == 10) {
+        this.removeFromCWorld = true;
+        this.time = 0;
+        clearInterval(i);
+        //updateCherryArray();
+    }
+    else {
+        this.time++;
+    }
+}
+
+/*
+ *Draws a cherry
+ */
+Cherry.prototype.draw = function () {
+    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
+        //context.drawImage(images["cocobreak"], this.x, this.y);
+        this.animation.drawFrame(clockCTick, context, this.x, this.y);
+
+    } else {
+        context.drawImage(images["Coconut"], this.x, this.y);
+
+    }
+
 }
 
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
