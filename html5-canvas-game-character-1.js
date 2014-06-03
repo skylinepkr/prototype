@@ -31,7 +31,7 @@ var maxEyeHeight = 6;
 var curEyeHeight = maxEyeHeight;
 var eyeOpenTime = 0;
 var timeBtwBlinks = 4000;
-var blinkUpdateTime = 200;                    
+var blinkUpdateTime = 200;
 var blinkTimer = setInterval(updateBlink, blinkUpdateTime);
 var fpsInterval = setInterval(updateFPS, 1000);
 var numFramesDrawn = 0;
@@ -50,17 +50,15 @@ var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
 var barrelArray = [];
-var highscorelist = [0,0,0,0,0];
+var highscorelist = [0, 0, 0, 0, 0];
 var numCoconuts = 3;
 var numBarrels = 2;
 var menuval = 0;
-var numCherries = 1;
-var cherryArray = [];
 var state = {
-  MainMenu : {value: 0, name: "MainMenu"}, 
-  Gameplay: {value: 1, name: "Gameplay"}, 
-  Pause : {value: 2, name: "Pause"},
-  HighScore: {value: 3, name: "HighScore"}
+    MainMenu: { value: 0, name: "MainMenu" },
+    Gameplay: { value: 1, name: "Gameplay" },
+    Pause: { value: 2, name: "Pause" },
+    HighScore: { value: 3, name: "HighScore" }
 };
 
 var menu = {
@@ -85,7 +83,6 @@ var currentstate = state.MainMenu;
 var menuval = 0;
 var highscorelist = [0, 0, 0, 0, 0];
 var timer = new Timer();
-var ctimer = new Timer();
 var clockTick = null;
 var bgX = 0, bgY = 0, bgX2 = 2768;
 var backgroundSpeed = 7;
@@ -123,55 +120,54 @@ function playSound(bufferList, index) {
 
     source1.start(0);
 
-    
+
 }
 
 /*
  * Updates the frames per second and frames drawn.
 */
 function updateFPS() {
-	
-	curFPS = numFramesDrawn;
-	numFramesDrawn = 0;
+
+    curFPS = numFramesDrawn;
+    numFramesDrawn = 0;
 }
 /*
  * Prepares the canvas and sets appropriate variables to the context and canvas.
  */
-function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
-{
-	// Create the canvas (Neccessary for IE because it doesn't know what a canvas element is)
-	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', canvasWidth);
-	canvas.setAttribute('height', canvasHeight);
-	canvas.setAttribute('id', 'canvas');
-	canvasDiv.appendChild(canvas);
-	
-	if(typeof G_vmlCanvasManager != 'undefined') {
-		canvas = G_vmlCanvasManager.initElement(canvas);
-	}
-	context = canvas.getContext("2d"); // Grab the 2d canvas context
-	// Note: The above code is a workaround for IE 8and lower. Otherwise we could have used:
-	//     context = document.getElementById('canvas').getContext("2d");
-	
-	loadImage("leftArm");
-	loadImage("legs");
-	loadImage("torso");
-	loadImage("rightArm");
-	loadImage("head");
-	loadImage("hair");
-	loadImage("background");
-	loadImage("lives");
-	loadImage("title");
-	loadImage("score");
-	loadImage("rightArm-jump");
-	loadImage("leftArm-jump");
-	loadImage("legs-jump");
-	loadImage("Coconut");
-	loadImage("cocoSprite");
-	loadImage("explodeSprite");
+function prepareCanvas(canvasDiv, canvasWidth, canvasHeight) {
+    // Create the canvas (Neccessary for IE because it doesn't know what a canvas element is)
+    canvas = document.createElement('canvas');
+    canvas.setAttribute('width', canvasWidth);
+    canvas.setAttribute('height', canvasHeight);
+    canvas.setAttribute('id', 'canvas');
+    canvasDiv.appendChild(canvas);
 
-	init();
-	loadImage("barrelSprites");
+    if (typeof G_vmlCanvasManager != 'undefined') {
+        canvas = G_vmlCanvasManager.initElement(canvas);
+    }
+    context = canvas.getContext("2d"); // Grab the 2d canvas context
+    // Note: The above code is a workaround for IE 8and lower. Otherwise we could have used:
+    //     context = document.getElementById('canvas').getContext("2d");
+
+    loadImage("leftArm");
+    loadImage("legs");
+    loadImage("torso");
+    loadImage("rightArm");
+    loadImage("head");
+    loadImage("hair");
+    loadImage("background");
+    loadImage("lives");
+    loadImage("title");
+    loadImage("score");
+    loadImage("rightArm-jump");
+    loadImage("leftArm-jump");
+    loadImage("legs-jump");
+    loadImage("Coconut");
+    loadImage("cocoSprite");
+    loadImage("explodeSprite");
+
+    init();
+    loadImage("barrelSprites");
 
 }
 
@@ -180,11 +176,11 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
  */
 function loadImage(name) {
 
-  images[name] = new Image();
-  images[name].onload = function() { 
-	  resourceLoaded();
-  }
-  images[name].src = "images/" + name + ".png";
+    images[name] = new Image();
+    images[name].onload = function () {
+        resourceLoaded();
+    }
+    images[name].src = "images/" + name + ".png";
 }
 
 /*
@@ -192,11 +188,11 @@ function loadImage(name) {
  */
 function resourceLoaded() {
 
-  numResourcesLoaded += 1;
-  if(numResourcesLoaded === totalResources) {
- 
-	setInterval(redraw, 1000 / fps);
-  }
+    numResourcesLoaded += 1;
+    if (numResourcesLoaded === totalResources) {
+
+        setInterval(redraw, 1000 / fps);
+    }
 }
 
 /*
@@ -208,7 +204,6 @@ function jump() {
 
         jumping = true;
         jumpCount++;
-     
         if (jumpCount > 3) {
             livesCount--;
         }
@@ -312,15 +307,14 @@ function redraw() {
         if (menuval == 0) {
             context.fillText("Play Game", 350, 300);
         }
-        else if (menuval ==1) {
+        else if (menuval == 1) {
             context.fillText("HighScore", 350, 300);
         }
-       
+
         this.updateArray();
 
     }
-    else if(currentstate == state.HighScore)
-    {
+    else if (currentstate == state.HighScore) {
         context.font = "bold 36px sans-serif";
         context.fillText("HighScore 1 : " + highscorelist[0], 350, 100);
         context.fillText("HighScore 2 : " + highscorelist[1], 350, 200);
@@ -401,22 +395,6 @@ function redraw() {
         }
 
 
-       /* if (right && jumping) {
-            if(!(x < 0) && !(x > 910)) {
-                x = x + 13;
-                y = (y*y);
-                stopRight();
-            }
-
-        }*/
-
-        //gradually go left as time passes
-        if (!(x < 0)) {
-            x = x - 3;
-            charX = x;
-        }
-
-
         //draw shadow
         if (jumping) {
             drawEllipse(x + 40, y + 29, 100 - breathAmt, 4)
@@ -479,10 +457,6 @@ function redraw() {
         this.drawBarrels(canvas);
         this.updateArray();
         this.removeBarrel();
-
-        this.fillCherryArray(canvas);
-        this.drawCherries(canvas);
-        this.updateCherryArray();
 
         score += 1;
 
@@ -553,11 +527,6 @@ function redraw() {
         this.updateArray();
 
 
-        clockCTick = ctimer.tick();
-        this.fillCherryArray(canvas);
-        this.drawCherries(canvas);
-        this.updateCherryArray();
-
 
         score += 1;
     }
@@ -568,53 +537,53 @@ function redraw() {
  */
 function drawEllipse(centerX, centerY, width, height) {
 
-  context.beginPath();
-  
-  context.moveTo(centerX, centerY - height/2);
-  
-  context.bezierCurveTo(
-	centerX + width/2, centerY - height/2,
-	centerX + width/2, centerY + height/2,
-	centerX, centerY + height/2);
+    context.beginPath();
 
-  context.bezierCurveTo(
-	centerX - width/2, centerY + height/2,
-	centerX - width/2, centerY - height/2,
-	centerX, centerY - height/2);
- 
-  context.fillStyle = "black";
-  context.fill();
-  context.closePath();	
+    context.moveTo(centerX, centerY - height / 2);
+
+    context.bezierCurveTo(
+      centerX + width / 2, centerY - height / 2,
+      centerX + width / 2, centerY + height / 2,
+      centerX, centerY + height / 2);
+
+    context.bezierCurveTo(
+      centerX - width / 2, centerY + height / 2,
+      centerX - width / 2, centerY - height / 2,
+      centerX, centerY - height / 2);
+
+    context.fillStyle = "black";
+    context.fill();
+    context.closePath();
 }
 
 /*
  * Updates the breathing of the character as the game progresses.
  */
-function updateBreath() { 
-				
-  if (breathDir === 1) {  // breath in
-	breathAmt -= breathInc;
-	if (breathAmt < -breathMax) {
-	  breathDir = -1;
-	}
-  } else {  // breath out
-	breathAmt += breathInc;
-	if(breathAmt > breathMax) {
-	  breathDir = 1;
-	}
-  }
+function updateBreath() {
+
+    if (breathDir === 1) {  // breath in
+        breathAmt -= breathInc;
+        if (breathAmt < -breathMax) {
+            breathDir = -1;
+        }
+    } else {  // breath out
+        breathAmt += breathInc;
+        if (breathAmt > breathMax) {
+            breathDir = 1;
+        }
+    }
 }
 
 /*
  * Updates the blink pattern of the character.
  */
-function updateBlink() { 
-				
-  eyeOpenTime += blinkUpdateTime;
-	
-  if(eyeOpenTime >= timeBtwBlinks){
-	blink();
-  }
+function updateBlink() {
+
+    eyeOpenTime += blinkUpdateTime;
+
+    if (eyeOpenTime >= timeBtwBlinks) {
+        blink();
+    }
 }
 
 /*
@@ -622,13 +591,13 @@ function updateBlink() {
  */
 function blink() {
 
-  curEyeHeight -= .4;
-  if (curEyeHeight <= 0) {
-	eyeOpenTime = 0;
-	curEyeHeight = maxEyeHeight;
-  } else {
-	setTimeout(blink, 10);
-  }
+    curEyeHeight -= .4;
+    if (curEyeHeight <= 0) {
+        eyeOpenTime = 0;
+        curEyeHeight = maxEyeHeight;
+    } else {
+        setTimeout(blink, 10);
+    }
 }
 
 /*
@@ -689,7 +658,7 @@ function fillCocoArray(canvas) {
         var ranx = Math.floor(Math.random() * canvas.width);
         cocoArray.push(new Coconut(ranx, -70));
     }
-    
+
 }
 
 function Entity(x, y) {
@@ -781,293 +750,166 @@ Coconut.prototype.draw = function (that) {
             this.removeFromWorld = true;
         }
 
-    } else if (this.y > canvas.height - 200) {   
+    } else if (this.y > canvas.height - 200) {
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
     } else {
         context.drawImage(images["Coconut"], this.x, this.y);
-        this.box.draw();    
-  
-    }
-    
-}
+        this.box.draw();
 
-
-
-/*
- * Draws the cherries in the array
-*/
-function drawCherries(canvas) {
-    for (var i = 0; i < cherryArray.length ; i++) {
-        var cherry = cherryArray[i];
-        cherry.draw(canvas);
-        cherry.appear();
     }
 
-}
-
-/* 
-* Removes cherries that have fallen on the ground
-*/
-function updateCherryArray() {
-    for (var i = cherryArray.length - 1; i >= 0; --i) {
-            if (cherryArray[i].removeFromCWorld) {
-                cherryArray.splice(i, 1);
-            }
-        }
-   
-    /*if (cocoArray.length === 0) {
-        full = false;
-    }*/
 }
 
 /*
-* Add cherries to the coconut array 
-*/
-function fillCherryArray(canvas) {
-
-    for (var i = 0; i < numCherries - cherryArray.length; i++) {
-        var ranx = Math.floor(Math.random() * canvas.width);
-        cherryArray.push(new Cherry(ranx, 290));
-    }
-    //full = true;
-}
-
-/* 
- * Contructs a cherry with given x,y coordinates
-*/
-function Cherry(x, y) {
-    this.x = x;
-    this.y = y;
-    this.removeFromCWorld = false;
-    //this.fallSpeed = Math.floor(Math.random() * 5) + 2;
-    this.time = 0;
-    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
-
-
-} 
-
-/* 
- * Function that makes cherries appear
+Draws a Barrel (currently a coconut until we get the graphics for a barrel)
  */
-Cherry.prototype.appear = function () {
+Barrel.prototype.draw = function () {
+    this.animation.drawFrame(clockTick, context, this.x, this.y);
+}
 
-        this.time++;
-        if (this.time == 400) {
-            this.removeFromCWorld = true;
+function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+    this.spriteSheet = spriteSheet;
+    this.startX = startX;
+    this.startY = startY;
+    this.frameWidth = frameWidth;
+    this.frameDuration = frameDuration;
+    this.frameHeight = frameHeight;
+    this.frames = frames;
+    this.totalTime = frameDuration * frames;
+    this.elapsedTime = 0;
+    this.loop = loop;
+    this.reverse = reverse;
+}
+
+Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+    var scaleBy = scaleBy || 1;
+    this.elapsedTime += tick;
+    if (this.loop) {
+        if (this.isDone()) {
+            this.elapsedTime = 0;
         }
+    } else if (this.isDone()) {
+        return;
+    }
+    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+    var vindex = 0;
+    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+        vindex++;
+    }
+    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+        vindex++;
+    }
 
-        this.x -= 2;
+    var locX = x;
+    var locY = y;
+    var offset = vindex === 0 ? this.startX : 0;
+    ctx.drawImage(this.spriteSheet,
+                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                  this.frameWidth, this.frameHeight,
+                  locX, locY,
+                  this.frameWidth * scaleBy,
+                  this.frameHeight * scaleBy);
+}
 
-        if(this.x <= -10)
-        {
-            this.removeFromCWorld = true;
-        }
+Animation.prototype.currentFrame = function () {
+    return Math.floor(this.elapsedTime / this.frameDuration);
+}
 
-        if((charX >= this.x && charX <= this.x + 30) && ((charY + 50) <= this.y))
-        {
-            this.removeFromCWorld = true;
-        }
-   // this.tick++;
+Animation.prototype.isDone = function () {
+    return (this.elapsedTime >= this.totalTime);
+}
 
-   
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+}
 
-  /*  // setInterval(function () { var o = this.tick }, 1000);
-    var start = new Date().getTime();
-    //elapsed = '0.0';
+Timer.prototype.tick = function () {
+    var wallCurrent = Date.now();
+    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+    this.wallLastTimestamp = wallCurrent;
 
-        window.setInterval(function () {
-        var time = new Date().getTime() - start;
+    var gameDelta = Math.min(wallDelta, this.maxStep);
+    this.gameTime += gameDelta;
+    return gameDelta;
+}
 
-        //elapsed = Math.floor(time / 100) / 10;
-        if (time >= 1000)
-        {
-            this.removeFromCWorld = true;
-           // updateCherryArray();
-            //this.time = 0;
-        }
+function BoundingBox(x, y, width, height) {
+    this.Top = y;
+    this.Bottom = y + height;
+    this.Left = x;
+    this.Right = x + width;
+    this.collision = false;
+}
 
-    }, 100);*/
+BoundingBox.prototype.collide = function (other) {
+    this.collision = this.collision || (!(
+        (this.Bottom < other.Top) ||
+		(this.Top > other.Bottom) ||
+		(this.Left > other.Right) ||
+		(this.Right < other.Left)));
+
+    return this.collision;
+}
+BoundingBox.prototype.draw = function (that) {
+
+    context.beginPath();
+    context.moveTo(this.Left, this.Top);
+    context.lineTo(this.Right, this.Top);
+    context.lineTo(this.Right, this.Bottom);
+    context.lineTo(this.Left, this.Bottom);
+    context.lineTo(this.Left, this.Top);
+    context.stroke();
 
 }
 
-Cherry.prototype.tick = function () {
-
-    if (this.time == 10) {
-        this.removeFromCWorld = true;
-        this.time = 0;
-        clearInterval(i);
-        //updateCherryArray();
-    }
-    else {
-        this.time++;
-    }
+function BufferLoader(context, urlList, callback) {
+    this.context = context;
+    this.urlList = urlList;
+    this.onload = callback;
+    this.bufferList = new Array();
+    this.loadCount = 0;
 }
 
-/*
- *Draws a cherry
- */
-Cherry.prototype.draw = function () {
-    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
-        //context.drawImage(images["cocobreak"], this.x, this.y);
-        this.animation.drawFrame(clockCTick, context, this.x, this.y);
+BufferLoader.prototype.loadBuffer = function (url, index) {
+    // Load buffer asynchronously
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = "arraybuffer";
 
-    } else {
-        context.drawImage(images["Coconut"], this.x, this.y);
+    var loader = this;
 
-    }
-
-    /*
-    Draws a Barrel (currently a coconut until we get the graphics for a barrel)
-     */
-    Barrel.prototype.draw = function () {
-        this.animation.drawFrame(clockTick, context, this.x, this.y);
-
-    }
-
-    function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
-        this.spriteSheet = spriteSheet;
-        this.startX = startX;
-        this.startY = startY;
-        this.frameWidth = frameWidth;
-        this.frameDuration = frameDuration;
-        this.frameHeight = frameHeight;
-        this.frames = frames;
-        this.totalTime = frameDuration * frames;
-        this.elapsedTime = 0;
-        this.loop = loop;
-        this.reverse = reverse;
-    }
-
-    Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
-        var scaleBy = scaleBy || 1;
-        this.elapsedTime += tick;
-        if (this.loop) {
-            if (this.isDone()) {
-                this.elapsedTime = 0;
-            }
-        } else if (this.isDone()) {
-            return;
-        }
-        var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
-        var vindex = 0;
-        if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
-            index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
-            vindex++;
-        }
-        while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
-            index -= Math.floor(this.spriteSheet.width / this.frameWidth);
-            vindex++;
-        }
-
-        var locX = x;
-        var locY = y;
-        var offset = vindex === 0 ? this.startX : 0;
-        ctx.drawImage(this.spriteSheet,
-                      index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
-                      this.frameWidth, this.frameHeight,
-                      locX, locY,
-                      this.frameWidth * scaleBy,
-                      this.frameHeight * scaleBy);
-    }
-
-    Animation.prototype.currentFrame = function () {
-        return Math.floor(this.elapsedTime / this.frameDuration);
-    }
-
-    Animation.prototype.isDone = function () {
-        return (this.elapsedTime >= this.totalTime);
-    }
-
-    function Timer() {
-        this.gameTime = 0;
-        this.maxStep = 0.05;
-        this.wallLastTimestamp = 0;
-    }
-
-    Timer.prototype.tick = function () {
-        var wallCurrent = Date.now();
-        var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-        this.wallLastTimestamp = wallCurrent;
-
-        var gameDelta = Math.min(wallDelta, this.maxStep);
-        this.gameTime += gameDelta;
-        return gameDelta;
-    }
-
-    function BoundingBox(x, y, width, height) {
-        this.Top = y;
-        this.Bottom = y + height;
-        this.Left = x;
-        this.Right = x + width;
-        this.collision = false;
-    }
-
-    BoundingBox.prototype.collide = function (other) {
-        this.collision = this.collision || (!(
-            (this.Bottom < other.Top) ||
-            (this.Top > other.Bottom) ||
-            (this.Left > other.Right) ||
-            (this.Right < other.Left)));
-
-        return this.collision;
-    }
-    BoundingBox.prototype.draw = function (that) {
-
-        context.beginPath();
-        context.moveTo(this.Left, this.Top);
-        context.lineTo(this.Right, this.Top);
-        context.lineTo(this.Right, this.Bottom);
-        context.lineTo(this.Left, this.Bottom);
-        context.lineTo(this.Left, this.Top);
-        context.stroke();
-
-    }
-
-    function BufferLoader(context, urlList, callback) {
-        this.context = context;
-        this.urlList = urlList;
-        this.onload = callback;
-        this.bufferList = new Array();
-        this.loadCount = 0;
-    }
-
-    BufferLoader.prototype.loadBuffer = function (url, index) {
-        // Load buffer asynchronously
-        var request = new XMLHttpRequest();
-        request.open("GET", url, true);
-        request.responseType = "arraybuffer";
-
-        var loader = this;
-
-        request.onload = function () {
-            // Asynchronously decode the audio file data in request.response
-            loader.context.decodeAudioData(
-              request.response,
-              function (buffer) {
-                  if (!buffer) {
-                      alert('error decoding file data: ' + url);
-                      return;
-                  }
-                  loader.bufferList[index] = buffer;
-                  if (++loader.loadCount == loader.urlList.length)
-                      loader.onload(loader.bufferList);
-              },
-              function (error) {
-                  console.error('decodeAudioData error', error);
+    request.onload = function () {
+        // Asynchronously decode the audio file data in request.response
+        loader.context.decodeAudioData(
+          request.response,
+          function (buffer) {
+              if (!buffer) {
+                  alert('error decoding file data: ' + url);
+                  return;
               }
-            );
-        }
-
-        request.onerror = function () {
-            alert('BufferLoader: XHR error');
-        }
-
-        request.send();
+              loader.bufferList[index] = buffer;
+              if (++loader.loadCount == loader.urlList.length)
+                  loader.onload(loader.bufferList);
+          },
+          function (error) {
+              console.error('decodeAudioData error', error);
+          }
+        );
     }
 
-    BufferLoader.prototype.load = function () {
-        for (var i = 0; i < this.urlList.length; ++i)
-            this.loadBuffer(this.urlList[i], i);
+    request.onerror = function () {
+        alert('BufferLoader: XHR error');
     }
+
+    request.send();
+}
+
+BufferLoader.prototype.load = function () {
+    for (var i = 0; i < this.urlList.length; ++i)
+        this.loadBuffer(this.urlList[i], i);
 }
