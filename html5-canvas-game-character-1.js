@@ -81,10 +81,44 @@ var menuval = 0;
 var highscorelist = [0, 0, 0, 0, 0];
 var timer = new Timer();
 var clockTick = null;
-
 var bgX = 0, bgY = 0, bgX2 = 2768;
 var backgroundSpeed = 7;
+var monkey_box;
+var audio_context;
+var bufferLoader;
+var music_array = ['../sounds/splat.mp3', '../sounds/eyeOfTheTiger.mp3'];
 
+//window.onload = init;
+
+function init() {
+    // Fix up prefixing
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    audio_context = new AudioContext();
+
+    bufferLoader = new BufferLoader(
+      audio_context,
+      music_array,
+      finishedLoading
+      );
+
+    bufferLoader.load();
+}
+
+function finishedLoading(bufferList) {
+    playSound(bufferList, 1);
+}
+
+function playSound(bufferList, index) {
+    // Create two sources and play them both together.
+
+    var source1 = audio_context.createBufferSource();
+    source1.buffer = bufferList[index];
+    source1.connect(audio_context.destination);
+
+    source1.start(0);
+
+    
+}
 
 /*
  * Updates the frames per second and frames drawn.
@@ -128,6 +162,9 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("legs-jump");
 	loadImage("Coconut");
 	loadImage("cocoSprite");
+	loadImage("explodeSprite");
+
+	init();
 
 }
 
@@ -413,6 +450,10 @@ function redraw() {
         context.fillText(":" + livesCount, 900, 40);
         ++numFramesDrawn;
 
+        var monkey_height = images['torso'].height + images['head'].height;
+        monkey_box = new BoundingBox(x, y - images['head'].height, images['torso'].width, monkey_height - 20);
+        monkey_box.draw();
+
         this.fillCocoArray(canvas);
         this.drawCoconuts(canvas);
         this.updateArray();
@@ -423,6 +464,7 @@ function redraw() {
         //Left arm
         if (jumping) {
             context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+
         }
 
         else {
@@ -474,9 +516,17 @@ function redraw() {
         //drawEllipse(charX, charY, 20, 20);
 
         clockTick = timer.tick();
+
+        //monkey_height = images['torso'].height + images['head'].height;
+        //monkey_box = new BoundingBox(x, y - images['head'].height, images['torso'].width, monkey_height - 20);
+        //monkey_box.draw();
+        //drawEllipse(charX, charY, images['torso'].width, monkey_height);
+
         this.fillCocoArray(canvas);
         this.drawCoconuts(canvas);
         this.updateArray();
+
+
 
         score += 1;
     }
@@ -556,7 +606,7 @@ function blink() {
 function drawCoconuts(canvas) {
     for (var i = 0; i < cocoArray.length ; i++) {
         var coconut = cocoArray[i];
-        coconut.draw(canvas);
+        coconut.draw(this);
         coconut.fall();
     }
 
@@ -570,6 +620,7 @@ function updateArray() {
         if (cocoArray[i].removeFromWorld) {
             cocoArray.splice(i, 1);
         }
+
     }
     /*if (cocoArray.length === 0) {
         full = false;
@@ -585,32 +636,40 @@ function fillCocoArray(canvas) {
         var ranx = Math.floor(Math.random() * canvas.width);
         cocoArray.push(new Coconut(ranx, -70));
     }
-    //full = true;
+    
+}
+
+function Entity(x, y) {
+    this.x = x;
+    this.y = y;
+    this.removeFromWorld = false;
 }
 
 /* 
  * Contructs a coconut with given x,y coordinates
 */
 function Coconut(x, y) {
-    this.x = x;
-    this.y = y;
-    this.removeFromWorld = false;
+    Entity.call(this, x, y);
     this.fallSpeed = Math.floor(Math.random() * 5) + 2;
     this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
-    
+    this.explode_animation = new Animation(images["explodeSprite"], 0, 0, 116.67, 97.75, .09, 10, false, false);
+    this.box = new BoundingBox(x, y, images['Coconut'].width, images['Coconut'].height);
+    this.sound_played = false;
 
 }
-
+Coconut.prototype = new Entity();
+Coconut.prototype.constructor = Coconut;
 /* 
  * Function that increments y coordinate of coconut
  */
 Coconut.prototype.fall = function () {
-
-    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
-        this.y += this.fallSpeed;
-
-    } else {
-        this.removeFromWorld = true;
+    if (!this.box.collision) {
+        if (this.y >= (canvas.height - 100)) {
+            this.removeFromWorld = true;
+        } else {
+            this.y += this.fallSpeed;
+            this.box = new BoundingBox(this.x, this.y, images['Coconut'].width, images['Coconut'].height);
+        }
     }
 
 }
@@ -618,14 +677,28 @@ Coconut.prototype.fall = function () {
 /*
  *Draws a coconut
  */
-Coconut.prototype.draw = function () {
-    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
-        //context.drawImage(images["cocobreak"], this.x, this.y);
+Coconut.prototype.draw = function (that) {
+    this.box.collide(monkey_box); //sets a  flag if a collision occurs
+
+    if (this.box.collision) {
+        if (!this.sound_played) {
+            this.sound_played = true;
+            that.playSound(bufferLoader.bufferList, 0);
+        }
+
+        this.explode_animation.drawFrame(clockTick, context, this.x, this.y);
+
+        if (this.explode_animation.isDone()) {
+            this.removeFromWorld = true;
+        }
+
+    } else if (this.y > canvas.height - 200) {   
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
     } else {
         context.drawImage(images["Coconut"], this.x, this.y);
-        
+        this.box.draw();    
+  
     }
     
 }
@@ -698,4 +771,80 @@ Timer.prototype.tick = function () {
     var gameDelta = Math.min(wallDelta, this.maxStep);
     this.gameTime += gameDelta;
     return gameDelta;
+}
+
+function BoundingBox(x, y, width, height) {
+    this.Top = y;
+    this.Bottom = y + height;
+    this.Left = x;
+    this.Right = x + width;
+    this.collision = false;
+}
+
+BoundingBox.prototype.collide = function (other) {
+    this.collision = this.collision || (!(
+        (this.Bottom < other.Top) ||
+		(this.Top > other.Bottom) ||
+		(this.Left > other.Right) ||
+		(this.Right < other.Left)));
+
+    return this.collision;
+}
+BoundingBox.prototype.draw = function(that) {
+
+    context.beginPath();
+    context.moveTo(this.Left, this.Top);
+    context.lineTo(this.Right, this.Top);
+    context.lineTo(this.Right, this.Bottom);
+    context.lineTo(this.Left, this.Bottom);
+    context.lineTo(this.Left, this.Top);
+    context.stroke();
+ 
+}
+
+function BufferLoader(context, urlList, callback) {
+    this.context = context;
+    this.urlList = urlList;
+    this.onload = callback;
+    this.bufferList = new Array();
+    this.loadCount = 0;
+}
+
+BufferLoader.prototype.loadBuffer = function (url, index) {
+    // Load buffer asynchronously
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = "arraybuffer";
+
+    var loader = this;
+
+    request.onload = function () {
+        // Asynchronously decode the audio file data in request.response
+        loader.context.decodeAudioData(
+          request.response,
+          function (buffer) {
+              if (!buffer) {
+                  alert('error decoding file data: ' + url);
+                  return;
+              }
+              loader.bufferList[index] = buffer;
+              if (++loader.loadCount == loader.urlList.length)
+                  loader.onload(loader.bufferList);
+          },
+          function (error) {
+              console.error('decodeAudioData error', error);
+          }
+        );
+    }
+
+    request.onerror = function () {
+        alert('BufferLoader: XHR error');
+    }
+
+    request.send();
+}
+
+BufferLoader.prototype.load = function () {
+    for (var i = 0; i < this.urlList.length; ++i)
+        this.loadBuffer(this.urlList[i], i);
 }
