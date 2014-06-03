@@ -21,6 +21,7 @@ var numResourcesLoaded = 0;
 var fps = 30;
 var charX = 245;
 var charY = 473; //185
+var charCurrX;
 var breathInc = 0.1;
 var breathDir = 1;
 var breathAmt = 0;
@@ -48,8 +49,10 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
+var barrelArray = [];
 var highscorelist = [0,0,0,0,0];
 var numCoconuts = 3;
+var numBarrels = 2;
 var menuval = 0;
 var state = {
   MainMenu : {value: 0, name: "MainMenu"}, 
@@ -165,6 +168,7 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("explodeSprite");
 
 	init();
+	loadImage("barrelSprites");
 
 }
 
@@ -392,11 +396,6 @@ function redraw() {
 
         }
 
-        //gradually go left as time passes
-        if (!(x < 0)) {
-            x = x - 3;
-            charX = x;
-        }
 
         //draw shadow
         if (jumping) {
@@ -455,8 +454,11 @@ function redraw() {
         monkey_box.draw();
 
         this.fillCocoArray(canvas);
+        this.fillBarrelArray(canvas);
         this.drawCoconuts(canvas);
+        this.drawBarrels(canvas);
         this.updateArray();
+        this.removeBarrel();
 
         score += 1;
 
@@ -612,6 +614,17 @@ function drawCoconuts(canvas) {
 
 }
 
+/*
+ * Draws the barrels into the array
+*/
+function drawBarrels(canvas) {
+    for (var i = 0; i < barrelArray.length; i++) {
+        var barrel = barrelArray[i];
+        barrel.draw(canvas);
+        barrel.roll();
+    }
+}
+
 /* 
 * Removes coconuts that have fallen on the ground
 */
@@ -625,6 +638,17 @@ function updateArray() {
     /*if (cocoArray.length === 0) {
         full = false;
     }*/
+}
+
+/* 
+* Removes barrels rolled off screen
+*/
+function removeBarrel() {
+    for (var i = barrelArray.length - 1; i >= 0; --i) {
+        if (barrelArray[i].removeFromWorld) {
+            barrelArray.splice(i, 1);
+        }
+    }
 }
 
 /*
@@ -645,6 +669,17 @@ function Entity(x, y) {
     this.removeFromWorld = false;
 }
 
+/*
+* Adds Barrels to barrel array
+*/
+function fillBarrelArray(canvas) {
+
+    for (var i = 0; i < numBarrels - barrelArray.length; i++) {
+        barrelArray.push(new Barrel(1000, 453));
+    }
+}
+
+
 /* 
  * Contructs a coconut with given x,y coordinates
 */
@@ -660,6 +695,17 @@ function Coconut(x, y) {
 Coconut.prototype = new Entity();
 Coconut.prototype.constructor = Coconut;
 /* 
+ * Contructs a Barrel with given x,y coordinates
+*/
+function Barrel(x, y) {
+    this.x = x;
+    this.y = y;
+    this.removeFromWorld = false;
+    this.rollSpeed = Math.floor(Math.random() * 5) + 4;
+    this.animation = new Animation(images["barrelSprites"], 0, 0, 80, 68, 0.1, 4, true, false);
+}
+
+/* 
  * Function that increments y coordinate of coconut
  */
 Coconut.prototype.fall = function () {
@@ -670,6 +716,20 @@ Coconut.prototype.fall = function () {
             this.y += this.fallSpeed;
             this.box = new BoundingBox(this.x, this.y, images['Coconut'].width, images['Coconut'].height);
         }
+    }
+
+}
+
+/* 
+ * Function that increments x coordinate of Barrel
+ */
+Barrel.prototype.roll = function () {
+
+    if (this.x > 0) {
+        this.x -= this.rollSpeed;
+
+    } else {
+        this.removeFromWorld = true;
     }
 
 }
@@ -701,6 +761,13 @@ Coconut.prototype.draw = function (that) {
   
     }
     
+}
+
+/*
+Draws a Barrel (currently a coconut until we get the graphics for a barrel)
+ */
+Barrel.prototype.draw = function () {
+    this.animation.drawFrame(clockTick, context, this.x, this.y);
 }
 
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
