@@ -21,6 +21,7 @@ var numResourcesLoaded = 0;
 var fps = 30;
 var charX = 245;
 var charY = 473; //185
+var charCurrX;
 var breathInc = 0.1;
 var breathDir = 1;
 var breathAmt = 0;
@@ -48,8 +49,10 @@ var score = 0;
 var livesCount = 5;
 var jumpCount = 0;
 var cocoArray = [];
+var barrelArray = [];
 var highscorelist = [0,0,0,0,0];
-var numCoconuts = 6;
+var numCoconuts = 3;
+var numBarrels = 2;
 var menuval = 0;
 var numCherries = 1;
 var cherryArray = [];
@@ -84,10 +87,44 @@ var highscorelist = [0, 0, 0, 0, 0];
 var timer = new Timer();
 var ctimer = new Timer();
 var clockTick = null;
-
 var bgX = 0, bgY = 0, bgX2 = 2768;
 var backgroundSpeed = 7;
+var monkey_box;
+var audio_context;
+var bufferLoader;
+var music_array = ['../sounds/splat.mp3', '../sounds/eyeOfTheTiger.mp3'];
 
+//window.onload = init;
+
+function init() {
+    // Fix up prefixing
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    audio_context = new AudioContext();
+
+    bufferLoader = new BufferLoader(
+      audio_context,
+      music_array,
+      finishedLoading
+      );
+
+    bufferLoader.load();
+}
+
+function finishedLoading(bufferList) {
+    playSound(bufferList, 1);
+}
+
+function playSound(bufferList, index) {
+    // Create two sources and play them both together.
+
+    var source1 = audio_context.createBufferSource();
+    source1.buffer = bufferList[index];
+    source1.connect(audio_context.destination);
+
+    source1.start(0);
+
+    
+}
 
 /*
  * Updates the frames per second and frames drawn.
@@ -131,6 +168,10 @@ function prepareCanvas(canvasDiv, canvasWidth, canvasHeight)
 	loadImage("legs-jump");
 	loadImage("Coconut");
 	loadImage("cocoSprite");
+	loadImage("explodeSprite");
+
+	init();
+	loadImage("barrelSprites");
 
 }
 
@@ -359,6 +400,7 @@ function redraw() {
 
         }
 
+
        /* if (right && jumping) {
             if(!(x < 0) && !(x > 910)) {
                 x = x + 13;
@@ -373,6 +415,7 @@ function redraw() {
             x = x - 3;
             charX = x;
         }
+
 
         //draw shadow
         if (jumping) {
@@ -426,9 +469,16 @@ function redraw() {
         context.fillText(":" + livesCount, 900, 40);
         ++numFramesDrawn;
 
+        var monkey_height = images['torso'].height + images['head'].height;
+        monkey_box = new BoundingBox(x, y - images['head'].height, images['torso'].width, monkey_height - 20);
+        monkey_box.draw();
+
         this.fillCocoArray(canvas);
+        this.fillBarrelArray(canvas);
         this.drawCoconuts(canvas);
+        this.drawBarrels(canvas);
         this.updateArray();
+        this.removeBarrel();
 
         this.fillCherryArray(canvas);
         this.drawCherries(canvas);
@@ -440,6 +490,7 @@ function redraw() {
         //Left arm
         if (jumping) {
             context.drawImage(images["leftArm-jump"], x + 40, y - 42 - breathAmt);
+
         }
 
         else {
@@ -491,14 +542,22 @@ function redraw() {
         //drawEllipse(charX, charY, 20, 20);
 
         clockTick = timer.tick();
+
+        //monkey_height = images['torso'].height + images['head'].height;
+        //monkey_box = new BoundingBox(x, y - images['head'].height, images['torso'].width, monkey_height - 20);
+        //monkey_box.draw();
+        //drawEllipse(charX, charY, images['torso'].width, monkey_height);
+
         this.fillCocoArray(canvas);
         this.drawCoconuts(canvas);
         this.updateArray();
+
 
         clockCTick = ctimer.tick();
         this.fillCherryArray(canvas);
         this.drawCherries(canvas);
         this.updateCherryArray();
+
 
         score += 1;
     }
@@ -578,10 +637,21 @@ function blink() {
 function drawCoconuts(canvas) {
     for (var i = 0; i < cocoArray.length ; i++) {
         var coconut = cocoArray[i];
-        coconut.draw(canvas);
+        coconut.draw(this);
         coconut.fall();
     }
 
+}
+
+/*
+ * Draws the barrels into the array
+*/
+function drawBarrels(canvas) {
+    for (var i = 0; i < barrelArray.length; i++) {
+        var barrel = barrelArray[i];
+        barrel.draw(canvas);
+        barrel.roll();
+    }
 }
 
 /* 
@@ -592,10 +662,22 @@ function updateArray() {
         if (cocoArray[i].removeFromWorld) {
             cocoArray.splice(i, 1);
         }
+
     }
     /*if (cocoArray.length === 0) {
         full = false;
     }*/
+}
+
+/* 
+* Removes barrels rolled off screen
+*/
+function removeBarrel() {
+    for (var i = barrelArray.length - 1; i >= 0; --i) {
+        if (barrelArray[i].removeFromWorld) {
+            barrelArray.splice(i, 1);
+        }
+    }
 }
 
 /*
@@ -607,29 +689,73 @@ function fillCocoArray(canvas) {
         var ranx = Math.floor(Math.random() * canvas.width);
         cocoArray.push(new Coconut(ranx, -70));
     }
-    //full = true;
+    
 }
+
+function Entity(x, y) {
+    this.x = x;
+    this.y = y;
+    this.removeFromWorld = false;
+}
+
+/*
+* Adds Barrels to barrel array
+*/
+function fillBarrelArray(canvas) {
+
+    for (var i = 0; i < numBarrels - barrelArray.length; i++) {
+        barrelArray.push(new Barrel(1000, 453));
+    }
+}
+
 
 /* 
  * Contructs a coconut with given x,y coordinates
 */
 function Coconut(x, y) {
+    Entity.call(this, x, y);
+    this.fallSpeed = Math.floor(Math.random() * 5) + 2;
+    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
+    this.explode_animation = new Animation(images["explodeSprite"], 0, 0, 116.67, 97.75, .09, 10, false, false);
+    this.box = new BoundingBox(x, y, images['Coconut'].width, images['Coconut'].height);
+    this.sound_played = false;
+
+}
+Coconut.prototype = new Entity();
+Coconut.prototype.constructor = Coconut;
+/* 
+ * Contructs a Barrel with given x,y coordinates
+*/
+function Barrel(x, y) {
     this.x = x;
     this.y = y;
     this.removeFromWorld = false;
-    this.fallSpeed = Math.floor(Math.random() * 5) + 2;
-    this.animation = new Animation(images["cocoSprite"], 0, 0, 93, 57, 0.08, 6, false, false);
-    
-
+    this.rollSpeed = Math.floor(Math.random() * 5) + 4;
+    this.animation = new Animation(images["barrelSprites"], 0, 0, 80, 68, 0.1, 4, true, false);
 }
 
 /* 
  * Function that increments y coordinate of coconut
  */
 Coconut.prototype.fall = function () {
+    if (!this.box.collision) {
+        if (this.y >= (canvas.height - 100)) {
+            this.removeFromWorld = true;
+        } else {
+            this.y += this.fallSpeed;
+            this.box = new BoundingBox(this.x, this.y, images['Coconut'].width, images['Coconut'].height);
+        }
+    }
 
-    if (this.y < (canvas.height - (100 /*+ images["Coconut"].height*/))) {
-        this.y += this.fallSpeed;
+}
+
+/* 
+ * Function that increments x coordinate of Barrel
+ */
+Barrel.prototype.roll = function () {
+
+    if (this.x > 0) {
+        this.x -= this.rollSpeed;
 
     } else {
         this.removeFromWorld = true;
@@ -640,17 +766,32 @@ Coconut.prototype.fall = function () {
 /*
  *Draws a coconut
  */
-Coconut.prototype.draw = function () {
-    if (this.y > canvas.height - 200) {   //+ images["Coconut"].height)
-        //context.drawImage(images["cocobreak"], this.x, this.y);
+Coconut.prototype.draw = function (that) {
+    this.box.collide(monkey_box); //sets a  flag if a collision occurs
+
+    if (this.box.collision) {
+        if (!this.sound_played) {
+            this.sound_played = true;
+            that.playSound(bufferLoader.bufferList, 0);
+        }
+
+        this.explode_animation.drawFrame(clockTick, context, this.x, this.y);
+
+        if (this.explode_animation.isDone()) {
+            this.removeFromWorld = true;
+        }
+
+    } else if (this.y > canvas.height - 200) {   
         this.animation.drawFrame(clockTick, context, this.x, this.y);
 
     } else {
         context.drawImage(images["Coconut"], this.x, this.y);
-        
+        this.box.draw();    
+  
     }
     
 }
+
 
 
 /*
@@ -776,74 +917,157 @@ Cherry.prototype.draw = function () {
 
     }
 
-}
+    /*
+    Draws a Barrel (currently a coconut until we get the graphics for a barrel)
+     */
+    Barrel.prototype.draw = function () {
+        this.animation.drawFrame(clockTick, context, this.x, this.y);
 
-function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
-    this.spriteSheet = spriteSheet;
-    this.startX = startX;
-    this.startY = startY;
-    this.frameWidth = frameWidth;
-    this.frameDuration = frameDuration;
-    this.frameHeight = frameHeight;
-    this.frames = frames;
-    this.totalTime = frameDuration * frames;
-    this.elapsedTime = 0;
-    this.loop = loop;
-    this.reverse = reverse;
-}
+    }
 
-Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
-    var scaleBy = scaleBy || 1;
-    this.elapsedTime += tick;
-    if (this.loop) {
-        if (this.isDone()) {
-            this.elapsedTime = 0;
+    function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
+        this.spriteSheet = spriteSheet;
+        this.startX = startX;
+        this.startY = startY;
+        this.frameWidth = frameWidth;
+        this.frameDuration = frameDuration;
+        this.frameHeight = frameHeight;
+        this.frames = frames;
+        this.totalTime = frameDuration * frames;
+        this.elapsedTime = 0;
+        this.loop = loop;
+        this.reverse = reverse;
+    }
+
+    Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
+        var scaleBy = scaleBy || 1;
+        this.elapsedTime += tick;
+        if (this.loop) {
+            if (this.isDone()) {
+                this.elapsedTime = 0;
+            }
+        } else if (this.isDone()) {
+            return;
         }
-    } else if (this.isDone()) {
-        return;
+        var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
+        var vindex = 0;
+        if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
+            index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
+            vindex++;
+        }
+        while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
+            index -= Math.floor(this.spriteSheet.width / this.frameWidth);
+            vindex++;
+        }
+
+        var locX = x;
+        var locY = y;
+        var offset = vindex === 0 ? this.startX : 0;
+        ctx.drawImage(this.spriteSheet,
+                      index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
+                      this.frameWidth, this.frameHeight,
+                      locX, locY,
+                      this.frameWidth * scaleBy,
+                      this.frameHeight * scaleBy);
     }
-    var index = this.reverse ? this.frames - this.currentFrame() - 1 : this.currentFrame();
-    var vindex = 0;
-    if ((index + 1) * this.frameWidth + this.startX > this.spriteSheet.width) {
-        index -= Math.floor((this.spriteSheet.width - this.startX) / this.frameWidth);
-        vindex++;
-    }
-    while ((index + 1) * this.frameWidth > this.spriteSheet.width) {
-        index -= Math.floor(this.spriteSheet.width / this.frameWidth);
-        vindex++;
+
+    Animation.prototype.currentFrame = function () {
+        return Math.floor(this.elapsedTime / this.frameDuration);
     }
 
-    var locX = x;
-    var locY = y;
-    var offset = vindex === 0 ? this.startX : 0;
-    ctx.drawImage(this.spriteSheet,
-                  index * this.frameWidth + offset, vindex * this.frameHeight + this.startY,  // source from sheet
-                  this.frameWidth, this.frameHeight,
-                  locX, locY,
-                  this.frameWidth * scaleBy,
-                  this.frameHeight * scaleBy);
-}
+    Animation.prototype.isDone = function () {
+        return (this.elapsedTime >= this.totalTime);
+    }
 
-Animation.prototype.currentFrame = function () {
-    return Math.floor(this.elapsedTime / this.frameDuration);
-}
+    function Timer() {
+        this.gameTime = 0;
+        this.maxStep = 0.05;
+        this.wallLastTimestamp = 0;
+    }
 
-Animation.prototype.isDone = function () {
-    return (this.elapsedTime >= this.totalTime);
-}
+    Timer.prototype.tick = function () {
+        var wallCurrent = Date.now();
+        var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+        this.wallLastTimestamp = wallCurrent;
 
-function Timer() {
-    this.gameTime = 0;
-    this.maxStep = 0.05;
-    this.wallLastTimestamp = 0;
-}
+        var gameDelta = Math.min(wallDelta, this.maxStep);
+        this.gameTime += gameDelta;
+        return gameDelta;
+    }
 
-Timer.prototype.tick = function () {
-    var wallCurrent = Date.now();
-    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-    this.wallLastTimestamp = wallCurrent;
+    function BoundingBox(x, y, width, height) {
+        this.Top = y;
+        this.Bottom = y + height;
+        this.Left = x;
+        this.Right = x + width;
+        this.collision = false;
+    }
 
-    var gameDelta = Math.min(wallDelta, this.maxStep);
-    this.gameTime += gameDelta;
-    return gameDelta;
+    BoundingBox.prototype.collide = function (other) {
+        this.collision = this.collision || (!(
+            (this.Bottom < other.Top) ||
+            (this.Top > other.Bottom) ||
+            (this.Left > other.Right) ||
+            (this.Right < other.Left)));
+
+        return this.collision;
+    }
+    BoundingBox.prototype.draw = function (that) {
+
+        context.beginPath();
+        context.moveTo(this.Left, this.Top);
+        context.lineTo(this.Right, this.Top);
+        context.lineTo(this.Right, this.Bottom);
+        context.lineTo(this.Left, this.Bottom);
+        context.lineTo(this.Left, this.Top);
+        context.stroke();
+
+    }
+
+    function BufferLoader(context, urlList, callback) {
+        this.context = context;
+        this.urlList = urlList;
+        this.onload = callback;
+        this.bufferList = new Array();
+        this.loadCount = 0;
+    }
+
+    BufferLoader.prototype.loadBuffer = function (url, index) {
+        // Load buffer asynchronously
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.responseType = "arraybuffer";
+
+        var loader = this;
+
+        request.onload = function () {
+            // Asynchronously decode the audio file data in request.response
+            loader.context.decodeAudioData(
+              request.response,
+              function (buffer) {
+                  if (!buffer) {
+                      alert('error decoding file data: ' + url);
+                      return;
+                  }
+                  loader.bufferList[index] = buffer;
+                  if (++loader.loadCount == loader.urlList.length)
+                      loader.onload(loader.bufferList);
+              },
+              function (error) {
+                  console.error('decodeAudioData error', error);
+              }
+            );
+        }
+
+        request.onerror = function () {
+            alert('BufferLoader: XHR error');
+        }
+
+        request.send();
+    }
+
+    BufferLoader.prototype.load = function () {
+        for (var i = 0; i < this.urlList.length; ++i)
+            this.loadBuffer(this.urlList[i], i);
+    }
 }
